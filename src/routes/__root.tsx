@@ -5,7 +5,7 @@ import {
   createRootRouteWithContext,
   useRouter,
   HeadContent,
-  HeadContent,
+
   Scripts,
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
