@@ -14,16 +14,272 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity: string | null
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity?: string | null
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity?: string | null
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
+      inventory_items: {
+        Row: {
+          id: string
+          name: string
+          quantity: number
+          reorder_level: number
+          sku: string
+          unit_price: number
+          updated_at: string
+          warehouse: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          quantity?: number
+          reorder_level?: number
+          sku: string
+          unit_price?: number
+          updated_at?: string
+          warehouse: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          quantity?: number
+          reorder_level?: number
+          sku?: string
+          unit_price?: number
+          updated_at?: string
+          warehouse?: string
+        }
+        Relationships: []
+      }
+      iot_sensors: {
+        Row: {
+          battery_pct: number | null
+          device_id: string
+          id: string
+          last_reading: number | null
+          shipment_id: string | null
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          battery_pct?: number | null
+          device_id: string
+          id?: string
+          last_reading?: number | null
+          shipment_id?: string | null
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          battery_pct?: number | null
+          device_id?: string
+          id?: string
+          last_reading?: number | null
+          shipment_id?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iot_sensors_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      shipments: {
+        Row: {
+          carrier: string | null
+          created_at: string
+          destination: string
+          eta: string | null
+          id: string
+          mode: string
+          origin: string
+          status: string
+          tracking_number: string
+          value_usd: number | null
+          vendor_id: string | null
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string
+          destination: string
+          eta?: string | null
+          id?: string
+          mode: string
+          origin: string
+          status?: string
+          tracking_number: string
+          value_usd?: number | null
+          vendor_id?: string | null
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string
+          destination?: string
+          eta?: string | null
+          id?: string
+          mode?: string
+          origin?: string
+          status?: string
+          tracking_number?: string
+          value_usd?: number | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          assignee: string | null
+          created_at: string
+          id: string
+          priority: string
+          status: string
+          subject: string
+        }
+        Insert: {
+          assignee?: string | null
+          created_at?: string
+          id?: string
+          priority?: string
+          status?: string
+          subject: string
+        }
+        Update: {
+          assignee?: string | null
+          created_at?: string
+          id?: string
+          priority?: string
+          status?: string
+          subject?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vendors: {
+        Row: {
+          contact_email: string | null
+          country: string | null
+          created_at: string
+          id: string
+          name: string
+          risk_score: number
+          status: string
+        }
+        Insert: {
+          contact_email?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          risk_score?: number
+          status?: string
+        }
+        Update: {
+          contact_email?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          risk_score?: number
+          status?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "manager" | "operator" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +406,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "manager", "operator", "viewer"],
+    },
   },
 } as const
