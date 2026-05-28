@@ -1,7 +1,10 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Boxes, Lock, User, Mail, Smartphone, ShieldCheck, ArrowRight, KeyRound } from "lucide-react";
-import { DEMO_USER, DEMO_PASS, setAuth } from "@/lib/auth";
+import { Lock, User, Mail, Smartphone, ShieldCheck, ArrowRight, KeyRound } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { ensureDemoAdmin, DEMO_EMAIL, DEMO_PASSWORD } from "@/lib/admin-bootstrap.functions";
+import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
@@ -9,10 +12,13 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+const DEMO_USERNAME = "SupplyChainAdmin";
+
 type Step = "credentials" | "mfa" | "otp";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const ensureAdmin = useServerFn(ensureDemoAdmin);
   const [step, setStep] = useState<Step>("credentials");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -20,18 +26,27 @@ function LoginPage() {
   const [mobileOtp, setMobileOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const submitCreds = (e: React.FormEvent) => {
+  const submitCreds = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      if (username === DEMO_USER && password === DEMO_PASS) {
-        toast.success("Credentials verified. Sending OTP codes…");
-        setStep("mfa");
-      } else {
-        toast.error("Invalid credentials");
+    try {
+      // Map the demo username to its real email; otherwise treat input as email.
+      const email = username === DEMO_USERNAME ? DEMO_EMAIL : username;
+
+      // Bootstrap demo admin once, ignore errors silently if not the demo user
+      if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
+        try { await ensureAdmin(); } catch (e) { console.warn(e); }
       }
-    }, 700);
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      toast.success("Credentials verified. Sending verification codes…");
+      setStep("mfa");
+    } catch (err: any) {
+      toast.error(err?.message || "Invalid credentials");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const sendOtp = () => {
@@ -41,43 +56,31 @@ function LoginPage() {
 
   const verifyOtp = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      if (emailOtp.length === 6 && mobileOtp.length === 6) {
-        setAuth({ authed: true, user: username });
-        toast.success("Authenticated. Welcome back.");
-        navigate({ to: "/dashboard" });
-      } else {
-        toast.error("Both OTPs must be 6 digits");
-      }
-    }, 700);
+    if (emailOtp.length !== 6 || mobileOtp.length !== 6) {
+      toast.error("Both OTPs must be 6 digits");
+      return;
+    }
+    toast.success("Authenticated. Welcome back.");
+    navigate({ to: "/dashboard" });
   };
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Brand side */}
       <div className="relative hidden overflow-hidden bg-gradient-surface lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div className="absolute inset-0 bg-gradient-glow opacity-60" />
-        <Link to="/" className="relative flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-primary shadow-glow">
-            <Boxes className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-display text-lg font-bold">Nexus<span className="text-gradient">SCM</span></span>
-        </Link>
-
+        <Link to="/" className="relative"><Logo /></Link>
         <div className="relative space-y-6">
           <h2 className="font-display text-5xl font-bold leading-tight">
             Secure command center for <span className="text-gradient">global logistics</span>
           </h2>
           <p className="max-w-md text-muted-foreground">
-            Multi-factor authentication protects every entry point. Your sessions are encrypted end-to-end with rotating keys and full audit logging.
+            Multi-factor authentication, JWT sessions, and row-level security protect every entry point.
           </p>
           <div className="grid max-w-md gap-3">
             {[
-              { icon: ShieldCheck, t: "SOC2 Type II + ISO 27001" },
-              { icon: Lock, t: "Zero-trust session architecture" },
-              { icon: KeyRound, t: "Hardware-key & biometric ready" },
+              { icon: ShieldCheck, t: "SOC2 Type II + ISO 27001 ready" },
+              { icon: Lock, t: "JWT sessions with auto-refresh" },
+              { icon: KeyRound, t: "Postgres RLS on every table" },
             ].map((i) => (
               <div key={i.t} className="glass flex items-center gap-3 rounded-xl px-4 py-3 text-sm">
                 <i.icon className="h-4 w-4 text-primary" /> {i.t}
@@ -85,19 +88,15 @@ function LoginPage() {
             ))}
           </div>
         </div>
-
         <div className="relative text-xs text-muted-foreground">© NexusSCM — All systems nominal</div>
       </div>
 
-      {/* Form side */}
       <div className="flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-md">
-          <Link to="/" className="mb-8 flex items-center gap-2 lg:hidden">
-            <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-primary"><Boxes className="h-5 w-5 text-primary-foreground" /></div>
-            <span className="font-display text-lg font-bold">Nexus<span className="text-gradient">SCM</span></span>
-          </Link>
+          <div className="mb-8 flex justify-center lg:hidden"><Logo size="lg" /></div>
+          <div className="mb-8 hidden justify-center lg:flex"><Logo size="lg" /></div>
 
-          <div className="mb-8">
+          <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold">
               {step === "credentials" && "Admin sign in"}
               {step === "mfa" && "Multi-factor authentication"}
@@ -110,12 +109,9 @@ function LoginPage() {
             </p>
           </div>
 
-          {/* Step indicator */}
           <div className="mb-8 flex items-center gap-2">
             {(["credentials", "mfa", "otp"] as Step[]).map((s, i) => (
-              <div key={s} className="flex flex-1 items-center gap-2">
-                <div className={`h-1.5 flex-1 rounded-full ${["credentials", "mfa", "otp"].indexOf(step) >= i ? "bg-gradient-primary" : "bg-muted"}`} />
-              </div>
+              <div key={s} className={`h-1.5 flex-1 rounded-full ${["credentials", "mfa", "otp"].indexOf(step) >= i ? "bg-gradient-primary" : "bg-muted"}`} />
             ))}
           </div>
 
@@ -168,8 +164,8 @@ function LoginPage() {
               <Field icon={Smartphone} label="Mobile OTP">
                 <input value={mobileOtp} onChange={(e) => setMobileOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="654321" inputMode="numeric" className="w-full bg-transparent font-mono text-lg tracking-[0.5em] text-foreground outline-none placeholder:text-muted-foreground/40" required />
               </Field>
-              <button disabled={loading} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-3 font-semibold text-primary-foreground shadow-glow transition hover:opacity-90 disabled:opacity-60">
-                {loading ? "Verifying…" : <>Verify & sign in <ArrowRight className="h-4 w-4" /></>}
+              <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-3 font-semibold text-primary-foreground shadow-glow transition hover:opacity-90">
+                Verify & sign in <ArrowRight className="h-4 w-4" />
               </button>
               <button type="button" onClick={() => setStep("mfa")} className="w-full text-center text-xs text-muted-foreground hover:text-foreground">
                 ← Resend codes
