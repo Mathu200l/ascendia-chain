@@ -156,30 +156,30 @@ function RegisterPage() {
             <form onSubmit={submit} className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <Field icon={User} label="Full name">
-                  <input required value={form.full_name} onChange={update("full_name")} placeholder="Jane Doe" className="field-input" />
+                  <input required value={form.full_name} onChange={update("full_name")} placeholder="Jane Doe" className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60" />
                 </Field>
                 <Field icon={Mail} label="Work email">
-                  <input required type="email" value={form.email} onChange={update("email")} placeholder="jane@acme.com" className="field-input" />
+                  <input required type="email" value={form.email} onChange={update("email")} placeholder="jane@acme.com" className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60" />
                 </Field>
                 <Field icon={Smartphone} label="Mobile">
-                  <input required value={form.mobile} onChange={update("mobile")} placeholder="+1 555 123 4567" className="field-input" />
+                  <input required value={form.mobile} onChange={update("mobile")} placeholder="+1 555 123 4567" className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60" />
                 </Field>
                 <Field icon={Calendar} label="Date of birth">
-                  <input type="date" value={form.dob} onChange={update("dob")} className="field-input" />
+                  <input type="date" value={form.dob} onChange={update("dob")} className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60" />
                 </Field>
                 <Field icon={Building2} label="Company name">
-                  <input required value={form.company_name} onChange={update("company_name")} placeholder="Acme Logistics Inc." className="field-input" />
+                  <input required value={form.company_name} onChange={update("company_name")} placeholder="Acme Logistics Inc." className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60" />
                 </Field>
                 <Field icon={Briefcase} label="Industry">
-                  <select required value={form.industry_type} onChange={update("industry_type")} className="field-input">
+                  <select required value={form.industry_type} onChange={update("industry_type")} className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60">
                     {INDUSTRIES.map((i) => <option key={i} value={i} className="bg-surface">{i}</option>)}
                   </select>
                 </Field>
                 <Field icon={FileBadge} label="Tax / Registration ID">
-                  <input required value={form.tax_id} onChange={update("tax_id")} placeholder="EIN / GSTIN / VAT" className="field-input" />
+                  <input required value={form.tax_id} onChange={update("tax_id")} placeholder="EIN / GSTIN / VAT" className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60" />
                 </Field>
                 <Field icon={Lock} label="Password">
-                  <input required type="password" value={form.password} onChange={update("password")} placeholder="Min. 8 characters" className="field-input" />
+                  <input required type="password" value={form.password} onChange={update("password")} placeholder="Min. 8 characters" className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60" />
                 </Field>
               </div>
 
@@ -190,7 +190,7 @@ function RegisterPage() {
                   onChange={update("requirement_description")}
                   rows={4}
                   placeholder="E.g. We move 800 SKUs/month from 3 warehouses across APAC, need temperature-controlled fleet visibility, EDI integration with our ERP, and route optimization for last-mile."
-                  className="field-input resize-none leading-relaxed"
+                  className="w-full resize-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/60"
                 />
               </Field>
 
