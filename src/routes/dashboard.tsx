@@ -108,11 +108,27 @@ function Dashboard() {
           <button onClick={() => setOpen(false)} className="lg:hidden"><X className="h-5 w-5" /></button>
         </div>
         <nav className="space-y-1 p-3">
-          {NAV.map((n, i) => (
-            <button key={n.label} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${i === 0 ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-surface-elevated hover:text-foreground"}`}>
-              <n.icon className="h-4 w-4" /> {n.label}
-            </button>
-          ))}
+          {NAV.map((n) => {
+            const cls = "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition text-muted-foreground hover:bg-surface-elevated hover:text-foreground";
+            if (n.to) {
+              return (
+                <Link
+                  key={n.label}
+                  to={n.to}
+                  activeOptions={{ exact: true }}
+                  activeProps={{ className: "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition bg-primary/10 text-primary" }}
+                  inactiveProps={{ className: cls }}
+                >
+                  <n.icon className="h-4 w-4" /> {n.label}
+                </Link>
+              );
+            }
+            return (
+              <button key={n.label} className={cls}>
+                <n.icon className="h-4 w-4" /> {n.label}
+              </button>
+            );
+          })}
         </nav>
         <div className="absolute inset-x-3 bottom-3">
           <div className="glass rounded-xl p-3">
