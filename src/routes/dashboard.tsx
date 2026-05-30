@@ -53,12 +53,12 @@ const FEATURES = [
   { icon: Headphones, name: "Customer Support" },
 ];
 
-const NAV = [
-  { icon: LayoutDashboard, label: "Overview" },
+const NAV: { icon: any; label: string; to?: string }[] = [
+  { icon: LayoutDashboard, label: "Overview", to: "/dashboard" },
+  { icon: Store, label: "Clients", to: "/dashboard/clients" },
   { icon: MapPin, label: "Tracking" },
   { icon: Truck, label: "Fleet" },
   { icon: PackageCheck, label: "Inventory" },
-  { icon: Store, label: "Vendors" },
   { icon: BarChart3, label: "Analytics" },
   { icon: ShieldCheck, label: "Compliance" },
   { icon: Headphones, label: "Support" },
