@@ -23,7 +23,7 @@ type ClientProfile = {
   created_at: string;
 };
 
-export const Route = createFileRoute("/dashboard/clients")({
+export const Route = createFileRoute("/clients")({
   head: () => ({ meta: [{ title: "Clients — NexusSCM" }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();

@@ -55,7 +55,7 @@ const FEATURES = [
 
 const NAV: { icon: any; label: string; to?: string }[] = [
   { icon: LayoutDashboard, label: "Overview", to: "/dashboard" },
-  { icon: Store, label: "Clients", to: "/dashboard/clients" },
+  { icon: Store, label: "Clients", to: "/clients" },
   { icon: MapPin, label: "Tracking" },
   { icon: Truck, label: "Fleet" },
   { icon: PackageCheck, label: "Inventory" },
