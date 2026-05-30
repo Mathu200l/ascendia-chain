@@ -129,6 +129,12 @@ function LoginPage() {
               <p className="rounded-lg border border-border bg-surface/50 p-3 text-xs text-muted-foreground">
                 <span className="font-mono text-foreground">Demo:</span> SupplyChainAdmin / SupplyChainPassword
               </p>
+              <p className="pt-1 text-center text-xs text-muted-foreground">
+                New to NexusSCM?{" "}
+                <Link to="/register" className="font-medium text-primary hover:underline">
+                  Create your company account
+                </Link>
+              </p>
             </form>
           )}
 

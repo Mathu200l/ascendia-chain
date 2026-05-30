@@ -41,6 +41,54 @@ export type Database = {
         }
         Relationships: []
       }
+      client_profiles: {
+        Row: {
+          company_name: string
+          created_at: string
+          dob: string | null
+          email: string
+          full_name: string
+          id: string
+          industry_type: string
+          mobile: string
+          requirement_description: string
+          status: string
+          tax_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_name: string
+          created_at?: string
+          dob?: string | null
+          email: string
+          full_name: string
+          id?: string
+          industry_type: string
+          mobile: string
+          requirement_description: string
+          status?: string
+          tax_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_name?: string
+          created_at?: string
+          dob?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          industry_type?: string
+          mobile?: string
+          requirement_description?: string
+          status?: string
+          tax_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       inventory_items: {
         Row: {
           id: string
@@ -279,7 +327,13 @@ export type Database = {
       is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "manager" | "operator" | "viewer"
+      app_role:
+        | "admin"
+        | "manager"
+        | "operator"
+        | "viewer"
+        | "client"
+        | "vendor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -407,7 +461,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "manager", "operator", "viewer"],
+      app_role: ["admin", "manager", "operator", "viewer", "client", "vendor"],
     },
   },
 } as const
