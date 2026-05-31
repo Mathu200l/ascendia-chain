@@ -1,68 +1,24 @@
-import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import {
-  LayoutDashboard, MapPin, Cpu, FileLock2, Brain, Route as RouteIcon, PackageCheck, Truck, Undo2,
-  Store, Plug, BarChart3, ShieldCheck, DollarSign, Bell, ScrollText, Gavel, Map, Receipt, AlertTriangle,
-  HeartPulse, Wrench, Leaf, Container, TrendingUp, Headphones, Search, LogOut, Bell as BellIcon, Menu, X,
-} from "lucide-react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { Truck, PackageCheck, DollarSign, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getDashboardData } from "@/lib/dashboard.functions";
-import { Logo } from "@/components/Logo";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import {
   AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell, Legend,
 } from "recharts";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — NexusSCM" }] }),
+  head: () => ({ meta: [{ title: "Command Center — NexusSCM" }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/login" });
   },
   component: Dashboard,
 });
-
-const FEATURES = [
-  { icon: MapPin, name: "Real-time GPS Tracking" },
-  { icon: Cpu, name: "IoT Sensor Integration" },
-  { icon: FileLock2, name: "Smart Contracts" },
-  { icon: Brain, name: "AI Demand Forecasting" },
-  { icon: RouteIcon, name: "AI Route Optimization" },
-  { icon: PackageCheck, name: "Inventory Replenishment" },
-  { icon: Truck, name: "Multi-modal Transport" },
-  { icon: Undo2, name: "Reverse Logistics" },
-  { icon: Store, name: "Vendor Portal" },
-  { icon: Plug, name: "EDI Integration" },
-  { icon: BarChart3, name: "Reporting Engine" },
-  { icon: ShieldCheck, name: "Role-based Access" },
-  { icon: DollarSign, name: "Multi-currency" },
-  { icon: Bell, name: "Push Notifications" },
-  { icon: ScrollText, name: "Proof of Delivery" },
-  { icon: Gavel, name: "Compliance Audit Trail" },
-  { icon: Map, name: "Warehouse Heatmap" },
-  { icon: Receipt, name: "Automated Invoicing" },
-  { icon: AlertTriangle, name: "Supplier Risk Mgmt" },
-  { icon: HeartPulse, name: "Fleet Health Monitor" },
-  { icon: Wrench, name: "Predictive Maintenance" },
-  { icon: Leaf, name: "Carbon Footprint" },
-  { icon: Container, name: "Cross-docking" },
-  { icon: TrendingUp, name: "Dynamic Pricing" },
-  { icon: Headphones, name: "Customer Support" },
-];
-
-const NAV: { icon: any; label: string; to?: string }[] = [
-  { icon: LayoutDashboard, label: "Overview", to: "/dashboard" },
-  { icon: Store, label: "Clients", to: "/clients" },
-  { icon: MapPin, label: "Tracking" },
-  { icon: Truck, label: "Fleet" },
-  { icon: PackageCheck, label: "Inventory" },
-  { icon: BarChart3, label: "Analytics" },
-  { icon: ShieldCheck, label: "Compliance" },
-  { icon: Headphones, label: "Support" },
-];
 
 const MODE_COLORS = ["var(--color-chart-1)", "var(--color-chart-2)", "var(--color-chart-3)", "var(--color-chart-4)"];
 
@@ -73,16 +29,8 @@ function fmtMoney(n: number) {
 }
 
 function Dashboard() {
-  const navigate = useNavigate();
   const fetchData = useServerFn(getDashboardData);
-  const [user, setUser] = useState<string>("Admin");
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setUser(data.user.user_metadata?.full_name || data.user.email?.split("@")[0] || "Admin");
-    });
-  }, []);
+  const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard"],
@@ -90,86 +38,28 @@ function Dashboard() {
     refetchInterval: 15000,
   });
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast.success("Signed out");
-    navigate({ to: "/login" });
-  };
+  // Realtime: recalc top stats when any tracked table changes
+  useEffect(() => {
+    const tables = ["shipments", "invoices", "inventory_items", "risk_alerts", "fleet_vehicles", "support_tickets"];
+    const channel = supabase.channel("overview-rt");
+    tables.forEach((t) => {
+      channel.on("postgres_changes", { event: "*", schema: "public", table: t }, () => {
+        qc.invalidateQueries({ queryKey: ["dashboard"] });
+      });
+    });
+    channel.subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [qc]);
 
   const k = data?.kpis;
   const trend = data?.trend ?? [];
   const modes = (data?.modes ?? []).filter((m) => m.value > 0);
 
   return (
-    <div className="min-h-screen">
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-border bg-gradient-surface transition-transform lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex h-16 items-center justify-between border-b border-border px-5">
-          <Link to="/"><Logo size="sm" /></Link>
-          <button onClick={() => setOpen(false)} className="lg:hidden"><X className="h-5 w-5" /></button>
-        </div>
-        <nav className="space-y-1 p-3">
-          {NAV.map((n) => {
-            const cls = "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition text-muted-foreground hover:bg-surface-elevated hover:text-foreground";
-            if (n.to) {
-              return (
-                <Link
-                  key={n.label}
-                  to={n.to}
-                  activeOptions={{ exact: true }}
-                  activeProps={{ className: "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition bg-primary/10 text-primary" }}
-                  inactiveProps={{ className: cls }}
-                >
-                  <n.icon className="h-4 w-4" /> {n.label}
-                </Link>
-              );
-            }
-            return (
-              <button key={n.label} className={cls}>
-                <n.icon className="h-4 w-4" /> {n.label}
-              </button>
-            );
-          })}
-        </nav>
-        <div className="absolute inset-x-3 bottom-3">
-          <div className="glass rounded-xl p-3">
-            <div className="flex items-center gap-3">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-primary text-sm font-bold text-primary-foreground">{(user[0] || "A").toUpperCase()}</div>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium">{user}</div>
-                <div className="text-xs text-muted-foreground">Super Admin</div>
-              </div>
-              <button onClick={handleLogout} title="Sign out" className="rounded-md p-1.5 text-muted-foreground hover:bg-surface-elevated hover:text-destructive"><LogOut className="h-4 w-4" /></button>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur md:px-8">
-          <button onClick={() => setOpen(true)} className="lg:hidden"><Menu className="h-5 w-5" /></button>
-          <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-surface/60 px-3 py-2 md:max-w-md">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <input placeholder="Search shipments, vendors, SKUs…" className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60" />
-          </div>
-          <button className="relative rounded-lg border border-border bg-surface/60 p-2.5 hover:bg-surface-elevated">
-            <BellIcon className="h-4 w-4" />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent"></span>
-          </button>
-        </header>
-
-        <main className="space-y-8 p-4 md:p-8">
-          <section>
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="text-sm text-muted-foreground">Welcome back, {user}</p>
-                <h1 className="font-display text-3xl font-bold md:text-4xl">Command Center</h1>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-success" /> Live · auto-refresh 15s
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <DashboardLayout title="Command Center" subtitle="Live operations across all 30 modules">
+      <main className="space-y-8 p-4 md:p-8">
+        <section>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {[
                 { label: "Active Shipments", value: k ? k.active.toLocaleString() : "—", sub: k ? `${k.total} total · ${k.delayed} delayed` : "", icon: Truck },
                 { label: "On-time Delivery", value: k ? `${k.onTimePct}%` : "—", sub: "SLA performance", icon: PackageCheck },
@@ -188,6 +78,7 @@ function Dashboard() {
               ))}
             </div>
           </section>
+
 
           <section className="grid gap-4 xl:grid-cols-3">
             <div className="rounded-2xl border border-border bg-card p-5 xl:col-span-2">
