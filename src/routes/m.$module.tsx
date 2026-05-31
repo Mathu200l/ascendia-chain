@@ -15,7 +15,7 @@ export const Route = createFileRoute("/m/$module")({
   component: ModulePage,
 });
 
-function fmtCell(value: unknown, col: ModuleColumn): string | JSX.Element {
+function fmtCell(value: unknown, col: ModuleColumn): React.ReactNode {
   if (value === null || value === undefined || value === "") return "—";
   if (col.fmt === "money") return `$${Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
   if (col.fmt === "pct") return `${value}%`;
@@ -89,7 +89,8 @@ function ModulePage() {
     queryKey: ["module", slug],
     queryFn: async () => {
       if (!def) return [];
-      let q = supabase.from(def.table).select("*").limit(200);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let q = (supabase as any).from(def.table).select("*").limit(200);
       if (def.orderBy) q = q.order(def.orderBy.column, { ascending: def.orderBy.ascending ?? false });
       else q = q.order("created_at", { ascending: false });
       const { data, error } = await q;
@@ -132,7 +133,7 @@ function ModulePage() {
       // strip empties
       Object.keys(payload).forEach((k) => { if (payload[k] === "" || payload[k] === null) delete payload[k]; });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase.from(def.table) as any).insert(payload);
+      const { error } = await ((supabase as any).from(def.table)).insert(payload);
       if (error) throw error;
       toast.success(`${def.label} record created`);
       setForm({});
