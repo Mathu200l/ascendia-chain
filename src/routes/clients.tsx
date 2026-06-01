@@ -1,12 +1,14 @@
-import { createFileRoute, redirect, Link } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import {
-  ArrowLeft, Search, Building2, Mail, Smartphone, Briefcase, FileBadge,
+  Search, Building2, Mail, Smartphone, Briefcase, FileBadge,
   Calendar, MessageSquare, CheckCircle2, Archive, Clock, X,
 } from "lucide-react";
 import { toast } from "sonner";
+
 
 type ClientProfile = {
   id: string;
