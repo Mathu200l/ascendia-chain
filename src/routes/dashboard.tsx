@@ -191,25 +191,8 @@ function Dashboard() {
             </div>
           </section>
 
-          <section>
-            <div className="mb-5">
-              <h2 className="font-display text-2xl font-bold">Platform modules</h2>
-              <p className="text-sm text-muted-foreground">25 enterprise capabilities, unified</p>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-              {FEATURES.map((f) => (
-                <button key={f.name} className="group relative overflow-hidden rounded-2xl border border-border bg-card p-5 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-elevated">
-                  <div className="mb-4 grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary shadow-glow">
-                    <f.icon className="h-5 w-5 text-primary-foreground" />
-                  </div>
-                  <div className="text-sm font-medium text-foreground">{f.name}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">Operational</div>
-                </button>
-              ))}
-            </div>
-          </section>
-        </main>
-      </div>
-    </div>
+      </main>
+    </DashboardLayout>
   );
 }
+

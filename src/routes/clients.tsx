@@ -1,12 +1,14 @@
-import { createFileRoute, redirect, Link } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import {
-  ArrowLeft, Search, Building2, Mail, Smartphone, Briefcase, FileBadge,
+  Search, Building2, Mail, Smartphone, Briefcase, FileBadge,
   Calendar, MessageSquare, CheckCircle2, Archive, Clock, X,
 } from "lucide-react";
 import { toast } from "sonner";
+
 
 type ClientProfile = {
   id: string;
@@ -89,14 +91,10 @@ function ClientsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4 md:px-8">
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> Dashboard
-          </Link>
-          <div className="flex-1" />
-          <div className="flex items-center gap-2 rounded-lg border border-border bg-surface/60 px-3 py-2 md:min-w-[320px]">
+    <DashboardLayout title="Client Onboardings" subtitle="Review companies and their submitted logistics requirements">
+      <div className="border-b border-border bg-background/60">
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 md:px-8">
+          <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-surface/60 px-3 py-2">
             <Search className="h-4 w-4 text-muted-foreground" />
             <input
               value={q}
@@ -106,7 +104,8 @@ function ClientsPage() {
             />
           </div>
         </div>
-      </header>
+      </div>
+
 
       <main className="mx-auto max-w-7xl space-y-6 p-4 md:p-8">
         <div>
@@ -204,9 +203,10 @@ function ClientsPage() {
       {selected && (
         <Drawer client={selected} onClose={() => setSelected(null)} onSetStatus={setStatus} />
       )}
-    </div>
+    </DashboardLayout>
   );
 }
+
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, string> = {
