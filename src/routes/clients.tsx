@@ -201,9 +201,10 @@ function ClientsPage() {
       {selected && (
         <Drawer client={selected} onClose={() => setSelected(null)} onSetStatus={setStatus} />
       )}
-    </div>
+    </DashboardLayout>
   );
 }
+
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, string> = {
