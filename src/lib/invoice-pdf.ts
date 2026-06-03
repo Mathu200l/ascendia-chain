@@ -56,7 +56,7 @@ export function generateInvoicePdf(invoice: InvoiceData, items: InvoiceItem[]): 
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
-  doc.text("NexusSCM", margin, 42);
+  doc.text("Ascendia-Chain", margin, 42);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(190, 220, 240);
@@ -194,7 +194,7 @@ export function generateInvoicePdf(invoice: InvoiceData, items: InvoiceItem[]): 
   doc.line(margin, footerY, pageW - margin, footerY);
   doc.setFontSize(8);
   doc.setTextColor(...SLATE);
-  doc.text("This is a system-generated GST tax invoice issued under the NexusSCM platform.", margin, footerY + 14);
+  doc.text("This is a system-generated GST tax invoice issued under the Ascendia-Chain platform.", margin, footerY + 14);
   doc.text(`Status: ${invoice.status.toUpperCase()}`, pageW - margin, footerY + 14, { align: "right" });
 
   return doc;

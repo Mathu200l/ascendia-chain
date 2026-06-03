@@ -8,7 +8,7 @@ import { Plus, Trash2, Download, Printer, FileText, Receipt } from "lucide-react
 import { generateInvoicePdf, type InvoiceData, type InvoiceItem } from "@/lib/invoice-pdf";
 
 export const Route = createFileRoute("/billing")({
-  head: () => ({ meta: [{ title: "Billing & GST Invoices — NexusSCM" }] }),
+  head: () => ({ meta: [{ title: "Billing & GST Invoices — Ascendia-Chain" }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/login" });

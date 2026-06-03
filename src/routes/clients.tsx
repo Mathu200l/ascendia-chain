@@ -26,7 +26,7 @@ type ClientProfile = {
 };
 
 export const Route = createFileRoute("/clients")({
-  head: () => ({ meta: [{ title: "Clients — NexusSCM" }] }),
+  head: () => ({ meta: [{ title: "Clients — Ascendia-Chain" }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/login" });
@@ -112,7 +112,7 @@ function ClientsPage() {
           <p className="text-sm text-muted-foreground">Customer success</p>
           <h1 className="font-display text-3xl font-bold md:text-4xl">Client Onboardings</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Review companies registered on NexusSCM and the logistics requirements they submitted.
+            Review companies registered on Ascendia-Chain and the logistics requirements they submitted.
           </p>
         </div>
 

@@ -11,8 +11,8 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
-      { title: "Create your NexusSCM account" },
-      { name: "description", content: "Onboard your company to NexusSCM — describe your logistics, warehousing, and shipping requirements." },
+      { title: "Create your Ascendia-Chain account" },
+      { name: "description", content: "Onboard your company to Ascendia-Chain — describe your logistics, warehousing, and shipping requirements." },
     ],
   }),
   component: RegisterPage,
@@ -85,7 +85,7 @@ function RegisterPage() {
       // Assign 'client' role (best effort)
       await supabase.from("user_roles").insert({ user_id: userId, role: "client" as never });
 
-      toast.success("Welcome to NexusSCM. Your account is being provisioned.");
+      toast.success("Welcome to Ascendia-Chain. Your account is being provisioned.");
       navigate({ to: "/dashboard" });
     } catch (err: any) {
       toast.error(err?.message || "Registration failed");
@@ -114,7 +114,7 @@ function RegisterPage() {
               <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Enterprise onboarding
             </div>
             <h2 className="font-display text-5xl font-bold leading-[1.05]">
-              Connect your supply chain to <span className="text-gradient">NexusSCM</span>
+              Connect your supply chain to <span className="text-gradient">Ascendia-Chain</span>
             </h2>
             <p className="max-w-md text-muted-foreground">
               Tell us about your operations. Our team reviews every requirement and provisions
@@ -134,7 +134,7 @@ function RegisterPage() {
             </div>
           </div>
 
-          <div className="text-xs text-muted-foreground">© NexusSCM · Global Logistics OS</div>
+          <div className="text-xs text-muted-foreground">© Ascendia-Chain · AI Supply Chain Ecosystem</div>
         </div>
       </div>
 
