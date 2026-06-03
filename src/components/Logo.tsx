@@ -10,11 +10,11 @@ export function Logo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
       </div>
       <div className="leading-tight">
         <div className={`font-display ${text} font-bold tracking-tight`}>
-          Nexus<span className="text-gradient">SCM</span>
+          Ascendia<span className="text-gradient">-Chain</span>
         </div>
         {size !== "sm" && (
           <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-            Supply Chain OS
+            AI Supply Chain
           </div>
         )}
       </div>
