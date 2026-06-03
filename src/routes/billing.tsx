@@ -8,7 +8,7 @@ import { Plus, Trash2, Download, Printer, FileText, Receipt } from "lucide-react
 import { generateInvoicePdf, type InvoiceData, type InvoiceItem } from "@/lib/invoice-pdf";
 
 export const Route = createFileRoute("/billing")({
-  head: () => ({ meta: [{ title: "Billing & GST Invoices — NexusSCM" }] }),
+  head: () => ({ meta: [{ title: "Billing & GST Invoices — Ascendia-Chain" }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/login" });
@@ -329,7 +329,7 @@ function BillingPage() {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          Seller: NexusSCM Logistics Pvt Ltd · GSTIN 29ABCDE1234F1Z5 · Bengaluru, KA. Need to adjust seller details?{" "}
+          Seller: Ascendia-Chain Logistics Pvt Ltd · GSTIN 29ABCDE1234F1Z5 · Bengaluru, KA. Need to adjust seller details?{" "}
           <Link to="/m/rbac" className="text-primary hover:underline">Manage roles</Link>.
         </p>
       </div>

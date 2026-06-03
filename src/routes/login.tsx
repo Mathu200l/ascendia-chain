@@ -8,7 +8,7 @@ import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Admin Login — NexusSCM" }] }),
+  head: () => ({ meta: [{ title: "Admin Login — Ascendia-Chain" }] }),
   component: LoginPage,
 });
 
@@ -88,7 +88,7 @@ function LoginPage() {
             ))}
           </div>
         </div>
-        <div className="relative text-xs text-muted-foreground">© NexusSCM — All systems nominal</div>
+        <div className="relative text-xs text-muted-foreground">© Ascendia-Chain — All systems nominal</div>
       </div>
 
       <div className="flex items-center justify-center p-6 md:p-12">
@@ -130,7 +130,7 @@ function LoginPage() {
                 <span className="font-mono text-foreground">Demo:</span> SupplyChainAdmin / SupplyChainPassword
               </p>
               <p className="pt-1 text-center text-xs text-muted-foreground">
-                New to NexusSCM?{" "}
+                New to Ascendia-Chain?{" "}
                 <Link to="/register" className="font-medium text-primary hover:underline">
                   Create your company account
                 </Link>

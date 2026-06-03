@@ -74,16 +74,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Ascendia-Chain | AI Supply Chain Ecosystem" },
+      { name: "description", content: "AI-powered, blockchain-secured supply chain management for global enterprises." },
+      { name: "author", content: "Ascendia-Chain" },
+      { property: "og:title", content: "Ascendia-Chain | AI Supply Chain Ecosystem" },
+      { property: "og:description", content: "AI-powered, blockchain-secured supply chain management for global enterprises." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:site", content: "@AscendiaChain" },
     ],
     links: [
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
       {
         rel: "stylesheet",
         href: appCss,
