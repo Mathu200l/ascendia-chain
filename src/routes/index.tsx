@@ -4,7 +4,7 @@ import { ArrowRight, ShieldCheck, Boxes, Activity, Globe2 } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Nexus SCM — Enterprise Supply Chain Platform" },
+      { title: "Ascendia-Chain | AI Supply Chain Ecosystem" },
       { name: "description", content: "AI-powered, blockchain-secured supply chain management for global enterprises." },
     ],
   }),
