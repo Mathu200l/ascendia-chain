@@ -20,7 +20,7 @@ function Landing() {
             <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-primary shadow-glow">
               <Boxes className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-lg font-bold tracking-tight">Nexus<span className="text-gradient">SCM</span></span>
+            <span className="font-display text-lg font-bold tracking-tight">Ascendia<span className="text-gradient">-Chain</span></span>
           </div>
           <nav className="hidden gap-8 text-sm text-muted-foreground md:flex">
             <a href="#features" className="hover:text-foreground">Features</a>
@@ -87,7 +87,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border/60 py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} NexusSCM — Enterprise Supply Chain Platform
+        © {new Date().getFullYear()} Ascendia-Chain — AI Supply Chain Ecosystem
       </footer>
     </div>
   );
