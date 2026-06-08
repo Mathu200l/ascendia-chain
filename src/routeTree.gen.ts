@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CustomerSignupRouteImport } from './routes/customer-signup'
+import { Route as CustomerPortalRouteImport } from './routes/customer-portal'
+import { Route as CustomerLoginRouteImport } from './routes/customer-login'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as IndexRouteImport } from './routes/index'
@@ -30,6 +33,21 @@ const LoginRoute = LoginRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerSignupRoute = CustomerSignupRouteImport.update({
+  id: '/customer-signup',
+  path: '/customer-signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerPortalRoute = CustomerPortalRouteImport.update({
+  id: '/customer-portal',
+  path: '/customer-portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerLoginRoute = CustomerLoginRouteImport.update({
+  id: '/customer-login',
+  path: '/customer-login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClientsRoute = ClientsRouteImport.update({
@@ -57,6 +75,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/clients': typeof ClientsRoute
+  '/customer-login': typeof CustomerLoginRoute
+  '/customer-portal': typeof CustomerPortalRoute
+  '/customer-signup': typeof CustomerSignupRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
@@ -66,6 +87,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/clients': typeof ClientsRoute
+  '/customer-login': typeof CustomerLoginRoute
+  '/customer-portal': typeof CustomerPortalRoute
+  '/customer-signup': typeof CustomerSignupRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
@@ -76,6 +100,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/clients': typeof ClientsRoute
+  '/customer-login': typeof CustomerLoginRoute
+  '/customer-portal': typeof CustomerPortalRoute
+  '/customer-signup': typeof CustomerSignupRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
@@ -87,6 +114,9 @@ export interface FileRouteTypes {
     | '/'
     | '/billing'
     | '/clients'
+    | '/customer-login'
+    | '/customer-portal'
+    | '/customer-signup'
     | '/dashboard'
     | '/login'
     | '/register'
@@ -96,6 +126,9 @@ export interface FileRouteTypes {
     | '/'
     | '/billing'
     | '/clients'
+    | '/customer-login'
+    | '/customer-portal'
+    | '/customer-signup'
     | '/dashboard'
     | '/login'
     | '/register'
@@ -105,6 +138,9 @@ export interface FileRouteTypes {
     | '/'
     | '/billing'
     | '/clients'
+    | '/customer-login'
+    | '/customer-portal'
+    | '/customer-signup'
     | '/dashboard'
     | '/login'
     | '/register'
@@ -115,6 +151,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BillingRoute: typeof BillingRoute
   ClientsRoute: typeof ClientsRoute
+  CustomerLoginRoute: typeof CustomerLoginRoute
+  CustomerPortalRoute: typeof CustomerPortalRoute
+  CustomerSignupRoute: typeof CustomerSignupRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
@@ -142,6 +181,27 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer-signup': {
+      id: '/customer-signup'
+      path: '/customer-signup'
+      fullPath: '/customer-signup'
+      preLoaderRoute: typeof CustomerSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer-portal': {
+      id: '/customer-portal'
+      path: '/customer-portal'
+      fullPath: '/customer-portal'
+      preLoaderRoute: typeof CustomerPortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer-login': {
+      id: '/customer-login'
+      path: '/customer-login'
+      fullPath: '/customer-login'
+      preLoaderRoute: typeof CustomerLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/clients': {
@@ -179,6 +239,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BillingRoute: BillingRoute,
   ClientsRoute: ClientsRoute,
+  CustomerLoginRoute: CustomerLoginRoute,
+  CustomerPortalRoute: CustomerPortalRoute,
+  CustomerSignupRoute: CustomerSignupRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
@@ -187,13 +250,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
