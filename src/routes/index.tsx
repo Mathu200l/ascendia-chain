@@ -27,9 +27,15 @@ function Landing() {
             <a href="#platform" className="hover:text-foreground">Platform</a>
             <a href="#security" className="hover:text-foreground">Security</a>
           </nav>
-          <Link to="/login" className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90">
-            Admin Login <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/customer-signup" className="hidden rounded-lg border border-border bg-surface/60 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-surface-elevated sm:inline-flex">
+              Customer Sign Up
+            </Link>
+            <Link to="/login" className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90">
+              Admin Login <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
         </div>
       </header>
 
@@ -45,13 +51,14 @@ function Landing() {
           Real-time visibility, AI forecasting, IoT telemetry, and blockchain-backed contracts — unified in one enterprise-grade command center.
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Link to="/login" className="inline-flex items-center gap-2 rounded-xl bg-gradient-primary px-6 py-3 font-semibold text-primary-foreground shadow-glow transition hover:opacity-90">
-            Launch Admin Console <ArrowRight className="h-4 w-4" />
+          <Link to="/customer-signup" className="inline-flex items-center gap-2 rounded-xl bg-gradient-primary px-6 py-3 font-semibold text-primary-foreground shadow-glow transition hover:opacity-90">
+            Get Started — Customer Signup <ArrowRight className="h-4 w-4" />
           </Link>
-          <a href="#features" className="inline-flex items-center rounded-xl border border-border bg-surface/60 px-6 py-3 font-semibold text-foreground transition hover:bg-surface-elevated">
-            Explore platform
-          </a>
+          <Link to="/login" className="inline-flex items-center rounded-xl border border-border bg-surface/60 px-6 py-3 font-semibold text-foreground transition hover:bg-surface-elevated">
+            Admin Console
+          </Link>
         </div>
+
 
         <div className="mx-auto mt-20 grid max-w-5xl grid-cols-2 gap-4 md:grid-cols-4">
           {[
