@@ -13,8 +13,8 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CustomerSignupRouteImport } from './routes/customer-signup'
-import { Route as CustomerPortalRouteImport } from './routes/customer-portal'
 import { Route as CustomerLoginRouteImport } from './routes/customer-login'
+import { Route as CustomerDashboardRouteImport } from './routes/customer-dashboard'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as IndexRouteImport } from './routes/index'
@@ -40,14 +40,14 @@ const CustomerSignupRoute = CustomerSignupRouteImport.update({
   path: '/customer-signup',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CustomerPortalRoute = CustomerPortalRouteImport.update({
-  id: '/customer-portal',
-  path: '/customer-portal',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CustomerLoginRoute = CustomerLoginRouteImport.update({
   id: '/customer-login',
   path: '/customer-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerDashboardRoute = CustomerDashboardRouteImport.update({
+  id: '/customer-dashboard',
+  path: '/customer-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClientsRoute = ClientsRouteImport.update({
@@ -75,8 +75,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/clients': typeof ClientsRoute
+  '/customer-dashboard': typeof CustomerDashboardRoute
   '/customer-login': typeof CustomerLoginRoute
-  '/customer-portal': typeof CustomerPortalRoute
   '/customer-signup': typeof CustomerSignupRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -87,8 +87,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/clients': typeof ClientsRoute
+  '/customer-dashboard': typeof CustomerDashboardRoute
   '/customer-login': typeof CustomerLoginRoute
-  '/customer-portal': typeof CustomerPortalRoute
   '/customer-signup': typeof CustomerSignupRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -100,8 +100,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
   '/clients': typeof ClientsRoute
+  '/customer-dashboard': typeof CustomerDashboardRoute
   '/customer-login': typeof CustomerLoginRoute
-  '/customer-portal': typeof CustomerPortalRoute
   '/customer-signup': typeof CustomerSignupRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -114,8 +114,8 @@ export interface FileRouteTypes {
     | '/'
     | '/billing'
     | '/clients'
+    | '/customer-dashboard'
     | '/customer-login'
-    | '/customer-portal'
     | '/customer-signup'
     | '/dashboard'
     | '/login'
@@ -126,8 +126,8 @@ export interface FileRouteTypes {
     | '/'
     | '/billing'
     | '/clients'
+    | '/customer-dashboard'
     | '/customer-login'
-    | '/customer-portal'
     | '/customer-signup'
     | '/dashboard'
     | '/login'
@@ -138,8 +138,8 @@ export interface FileRouteTypes {
     | '/'
     | '/billing'
     | '/clients'
+    | '/customer-dashboard'
     | '/customer-login'
-    | '/customer-portal'
     | '/customer-signup'
     | '/dashboard'
     | '/login'
@@ -151,8 +151,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BillingRoute: typeof BillingRoute
   ClientsRoute: typeof ClientsRoute
+  CustomerDashboardRoute: typeof CustomerDashboardRoute
   CustomerLoginRoute: typeof CustomerLoginRoute
-  CustomerPortalRoute: typeof CustomerPortalRoute
   CustomerSignupRoute: typeof CustomerSignupRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
@@ -190,18 +190,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomerSignupRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/customer-portal': {
-      id: '/customer-portal'
-      path: '/customer-portal'
-      fullPath: '/customer-portal'
-      preLoaderRoute: typeof CustomerPortalRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/customer-login': {
       id: '/customer-login'
       path: '/customer-login'
       fullPath: '/customer-login'
       preLoaderRoute: typeof CustomerLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer-dashboard': {
+      id: '/customer-dashboard'
+      path: '/customer-dashboard'
+      fullPath: '/customer-dashboard'
+      preLoaderRoute: typeof CustomerDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/clients': {
@@ -239,8 +239,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BillingRoute: BillingRoute,
   ClientsRoute: ClientsRoute,
+  CustomerDashboardRoute: CustomerDashboardRoute,
   CustomerLoginRoute: CustomerLoginRoute,
-  CustomerPortalRoute: CustomerPortalRoute,
   CustomerSignupRoute: CustomerSignupRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,

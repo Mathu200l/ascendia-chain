@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, Lock, ArrowRight, Sparkles } from "lucide-react";
+import { Mail, Lock, ArrowRight, Sparkles, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Logo } from "@/components/Logo";
@@ -24,7 +24,7 @@ function CustomerLogin() {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw error;
       toast.success("Welcome back.");
-      navigate({ to: "/customer-portal" });
+      navigate({ to: "/customer-dashboard" });
     } catch (err: any) {
       toast.error(err?.message || "Sign-in failed");
     } finally {
@@ -35,11 +35,11 @@ function CustomerLogin() {
   const signInWithGoogle = async () => {
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/customer-portal`,
+        redirect_uri: `${window.location.origin}/customer-dashboard`,
       });
       if (result.error) throw result.error;
       if (result.redirected) return;
-      navigate({ to: "/customer-portal" });
+      navigate({ to: "/customer-dashboard" });
     } catch (err: any) {
       toast.error(err?.message || "Google sign-in failed");
     }
@@ -48,10 +48,10 @@ function CustomerLogin() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#04060f] text-foreground">
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-55"
+        className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage:
-            "url('https://images.unsplash.com/photo-1605733513597-a8f8341084e6?auto=format&fit=crop&w=2400&q=80')",
+            "url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=2400&q=80')",
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-br from-[#04060f]/95 via-[#06091a]/85 to-[#0b1230]/90" />
@@ -113,6 +113,17 @@ function CustomerLogin() {
               {loading ? "Signing in…" : <>Sign in <ArrowRight className="h-4 w-4" /></>}
             </button>
           </form>
+
+          {/* Clearly separated staff/admin access link */}
+          <div className="mt-6 border-t border-white/10 pt-5 text-center">
+            <p className="mb-2 text-[11px] uppercase tracking-[0.2em] text-white/40">Internal team?</p>
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 rounded-xl border border-amber-300/30 bg-amber-400/[0.06] px-4 py-2 text-xs font-medium text-amber-200 transition hover:bg-amber-400/[0.12]"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" /> Access Staff / Admin Panel
+            </Link>
+          </div>
         </div>
       </div>
     </div>
