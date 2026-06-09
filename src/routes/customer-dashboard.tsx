@@ -10,12 +10,12 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/customer-dashboard")({
-  head: () => ({ meta: [{ title: "Customer Portal — Ascendia-Chain" }] }),
+  head: () => ({ meta: [{ title: "Customer Dashboard — Ascendia-Chain" }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/customer-login" });
   },
-  component: CustomerPortal,
+  component: CustomerDashboard,
 });
 
 type Plan = { id: string; name: string; tag: string; price: number; features: string[] };
@@ -26,39 +26,62 @@ const PLANS: Plan[] = [
 ];
 
 type CartItem = { id: string; name: string; price: number; qty: number };
-const CART_KEY = "ascendia_customer_cart_v1";
 
-function loadCart(): CartItem[] {
-  if (typeof window === "undefined") return [];
-  try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); } catch { return []; }
+function cartKeyFor(userId: string) { return `ascendia_cart_${userId}`; }
+function loadCart(userId: string): CartItem[] {
+  if (typeof window === "undefined" || !userId) return [];
+  try { return JSON.parse(localStorage.getItem(cartKeyFor(userId)) || "[]"); } catch { return []; }
 }
-function saveCart(c: CartItem[]) { localStorage.setItem(CART_KEY, JSON.stringify(c)); }
+function saveCart(userId: string, c: CartItem[]) {
+  if (!userId) return;
+  localStorage.setItem(cartKeyFor(userId), JSON.stringify(c));
+}
 
-function CustomerPortal() {
+function CustomerDashboard() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<"overview" | "cart" | "billing">("overview");
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [userId, setUserId] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [name, setName] = useState<string>("");
 
-  useEffect(() => { setCart(loadCart()); }, []);
-  useEffect(() => { saveCart(cart); }, [cart]);
-
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      setEmail(data.user?.email ?? "");
-      setName((data.user?.user_metadata as any)?.full_name ?? "");
+      const u = data.user;
+      if (!u) return;
+      setUserId(u.id);
+      setEmail(u.email ?? "");
+      setName((u.user_metadata as any)?.full_name ?? "");
+      setCart(loadCart(u.id));
     });
   }, []);
 
+  useEffect(() => { if (userId) saveCart(userId, cart); }, [cart, userId]);
+
+  // STRICT data isolation: only fetch this user's client profile + their invoices
+  const { data: profile } = useQuery({
+    queryKey: ["my-client-profile", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("client_profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+      return data;
+    },
+  });
+
   const { data: invoices } = useQuery({
-    queryKey: ["customer-invoices", email],
+    queryKey: ["my-invoices", profile?.id],
+    enabled: !!profile?.id,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("invoices")
         .select("*")
+        .eq("client_id", profile!.id)
         .order("created_at", { ascending: false })
-        .limit(25);
+        .limit(50);
       if (error) return [];
       return data ?? [];
     },
@@ -79,11 +102,8 @@ function CustomerPortal() {
     toast.success(`${p.name} added to cart`);
     setTab("cart");
   };
-
   const changeQty = (id: string, delta: number) =>
-    setCart((prev) =>
-      prev.flatMap((i) => (i.id === id ? (i.qty + delta <= 0 ? [] : [{ ...i, qty: i.qty + delta }]) : [i])),
-    );
+    setCart((prev) => prev.flatMap((i) => (i.id === id ? (i.qty + delta <= 0 ? [] : [{ ...i, qty: i.qty + delta }]) : [i])));
   const removeItem = (id: string) => setCart((prev) => prev.filter((i) => i.id !== id));
 
   const checkout = () => {
@@ -104,21 +124,20 @@ function CustomerPortal() {
         className="absolute inset-0 bg-cover bg-center opacity-40"
         style={{
           backgroundImage:
-            "url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=2400&q=80')",
+            "url('https://images.unsplash.com/photo-1605640840605-14ac1855827b?auto=format&fit=crop&w=2400&q=80')",
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-br from-[#04060f]/95 via-[#06091a]/90 to-[#0b1230]/95" />
       <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-cyan-500/15 blur-[160px]" />
       <div className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-violet-500/15 blur-[160px]" />
 
-      {/* Header */}
       <header className="relative z-10 border-b border-white/5 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
           <Link to="/"><Logo /></Link>
           <div className="flex items-center gap-3">
             <div className="hidden text-right md:block">
               <div className="text-sm font-medium">{name || email || "Customer"}</div>
-              <div className="text-[11px] text-white/50">{email}</div>
+              <div className="text-[11px] text-white/50">{profile?.company_name ?? email}</div>
             </div>
             <button
               onClick={signOut}
@@ -131,29 +150,27 @@ function CustomerPortal() {
       </header>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-10 lg:px-10">
-        {/* Hero */}
         <div
           className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-8 shadow-[0_30px_100px_-30px_rgba(40,80,200,0.45)] backdrop-blur-xl md:p-10"
           style={{ transform: "perspective(1800px) rotateX(1deg)" }}
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs text-cyan-300">
-            <Sparkles className="h-3.5 w-3.5" /> Customer command center
+            <Sparkles className="h-3.5 w-3.5" /> Your private command center
           </div>
           <h1 className="mt-4 font-display text-3xl font-bold md:text-4xl">
             Welcome{name ? `, ${name.split(" ")[0]}` : ""}.
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-white/70">
-            Track your subscription, manage your cart, and review invoices — all from one futuristic dashboard.
+            This dashboard shows <strong className="text-white">only your account</strong> — your cart, your billing, your shipments. No other company's data is visible here.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <Stat icon={ShoppingCart} label="Cart items" value={cart.reduce((s, i) => s + i.qty, 0).toString()} accent="from-cyan-400 to-sky-500" />
-            <Stat icon={Receipt} label="Invoices" value={(invoices?.length ?? 0).toString()} accent="from-violet-400 to-fuchsia-500" />
+            <Stat icon={Receipt} label="Your invoices" value={(invoices?.length ?? 0).toString()} accent="from-violet-400 to-fuchsia-500" />
             <Stat icon={CreditCard} label="Cart total" value={`$${cartTotal.toLocaleString()}`} accent="from-emerald-300 to-teal-500" />
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="mt-8 flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-1.5 backdrop-blur">
           {[
             { id: "overview", label: "Plans", icon: Package },
@@ -178,10 +195,7 @@ function CustomerPortal() {
           {tab === "overview" && (
             <div className="grid gap-5 md:grid-cols-3">
               {PLANS.map((p) => (
-                <div
-                  key={p.id}
-                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl transition hover:-translate-y-1 hover:border-cyan-300/40"
-                >
+                <div key={p.id} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl transition hover:-translate-y-1 hover:border-cyan-300/40">
                   <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-cyan-400/10 blur-2xl transition group-hover:bg-cyan-400/30" />
                   <div className="relative">
                     <div className="text-xs uppercase tracking-wider text-cyan-300">{p.tag}</div>
@@ -197,10 +211,7 @@ function CustomerPortal() {
                         </li>
                       ))}
                     </ul>
-                    <button
-                      onClick={() => addToCart(p)}
-                      className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-400 via-sky-500 to-violet-500 px-4 py-2.5 text-sm font-semibold shadow-[0_8px_30px_-8px_rgba(80,120,255,0.7)] transition hover:opacity-95"
-                    >
+                    <button onClick={() => addToCart(p)} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-400 via-sky-500 to-violet-500 px-4 py-2.5 text-sm font-semibold shadow-[0_8px_30px_-8px_rgba(80,120,255,0.7)] transition hover:opacity-95">
                       <Plus className="h-4 w-4" /> Add to cart
                     </button>
                   </div>
@@ -215,9 +226,7 @@ function CustomerPortal() {
                 <div className="py-16 text-center">
                   <ShoppingCart className="mx-auto h-10 w-10 text-white/30" />
                   <p className="mt-3 text-white/60">Your cart is empty.</p>
-                  <button onClick={() => setTab("overview")} className="mt-4 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-4 py-2 text-sm hover:bg-white/[0.1]">
-                    Browse plans
-                  </button>
+                  <button onClick={() => setTab("overview")} className="mt-4 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-4 py-2 text-sm hover:bg-white/[0.1]">Browse plans</button>
                 </div>
               ) : (
                 <>
@@ -258,13 +267,13 @@ function CustomerPortal() {
           {tab === "billing" && (
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-display text-lg font-semibold">Recent invoices</h3>
+                <h3 className="font-display text-lg font-semibold">Your invoices</h3>
                 <span className="text-xs text-white/50">{invoices?.length ?? 0} total</span>
               </div>
               {(!invoices || invoices.length === 0) ? (
                 <div className="py-12 text-center text-white/50">
                   <Receipt className="mx-auto h-10 w-10 text-white/20" />
-                  <p className="mt-3 text-sm">No invoices yet. They'll appear here once your subscription is active.</p>
+                  <p className="mt-3 text-sm">No invoices yet. Once your subscription activates, only invoices issued to <strong>{profile?.company_name ?? "your company"}</strong> will appear here.</p>
                 </div>
               ) : (
                 <div className="overflow-hidden rounded-xl border border-white/10">
@@ -273,7 +282,6 @@ function CustomerPortal() {
                       <tr>
                         <th className="px-4 py-3">Invoice #</th>
                         <th className="px-4 py-3">Date</th>
-                        <th className="px-4 py-3">Client</th>
                         <th className="px-4 py-3 text-right">Total</th>
                         <th className="px-4 py-3">Status</th>
                       </tr>
@@ -283,13 +291,8 @@ function CustomerPortal() {
                         <tr key={inv.id} className="hover:bg-white/[0.03]">
                           <td className="px-4 py-3 font-mono text-xs">{inv.invoice_number ?? inv.id?.slice(0, 8)}</td>
                           <td className="px-4 py-3 text-white/70">{new Date(inv.created_at).toLocaleDateString()}</td>
-                          <td className="px-4 py-3">{inv.client_name ?? "—"}</td>
                           <td className="px-4 py-3 text-right font-semibold">₹{Number(inv.total ?? 0).toLocaleString()}</td>
-                          <td className="px-4 py-3">
-                            <span className="inline-flex rounded-full bg-emerald-400/10 px-2 py-0.5 text-xs text-emerald-300">
-                              {inv.status ?? "issued"}
-                            </span>
-                          </td>
+                          <td className="px-4 py-3"><span className="inline-flex rounded-full bg-emerald-400/10 px-2 py-0.5 text-xs text-emerald-300">{inv.status ?? "issued"}</span></td>
                         </tr>
                       ))}
                     </tbody>
