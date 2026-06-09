@@ -9,7 +9,7 @@ import {
   Package, CreditCard, CheckCircle2, Truck,
 } from "lucide-react";
 
-export const Route = createFileRoute("/customer-portal")({
+export const Route = createFileRoute("/customer-dashboard")({
   head: () => ({ meta: [{ title: "Customer Portal — Ascendia-Chain" }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
