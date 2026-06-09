@@ -55,7 +55,7 @@ function CustomerSignup() {
         email: form.email.trim(),
         password: form.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/customer-portal`,
+          emailRedirectTo: `${window.location.origin}/customer-dashboard`,
           data: { full_name: form.full_name, company_name: form.company_name },
         },
       });
@@ -79,7 +79,7 @@ function CustomerSignup() {
       await supabase.from("user_roles").insert({ user_id: userId, role: "client" as never });
 
       toast.success("Welcome aboard! Provisioning your customer portal…");
-      navigate({ to: "/customer-portal" });
+      navigate({ to: "/customer-dashboard" });
     } catch (err: any) {
       toast.error(err?.message || "Signup failed");
     } finally {
@@ -91,11 +91,11 @@ function CustomerSignup() {
     setGoogleLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/customer-portal`,
+        redirect_uri: `${window.location.origin}/customer-dashboard`,
       });
       if (result.error) throw result.error;
       if (result.redirected) return;
-      navigate({ to: "/customer-portal" });
+      navigate({ to: "/customer-dashboard" });
     } catch (err: any) {
       toast.error(err?.message || "Google sign-in failed");
       setGoogleLoading(false);

@@ -24,7 +24,7 @@ function CustomerLogin() {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw error;
       toast.success("Welcome back.");
-      navigate({ to: "/customer-portal" });
+      navigate({ to: "/customer-dashboard" });
     } catch (err: any) {
       toast.error(err?.message || "Sign-in failed");
     } finally {
@@ -35,11 +35,11 @@ function CustomerLogin() {
   const signInWithGoogle = async () => {
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/customer-portal`,
+        redirect_uri: `${window.location.origin}/customer-dashboard`,
       });
       if (result.error) throw result.error;
       if (result.redirected) return;
-      navigate({ to: "/customer-portal" });
+      navigate({ to: "/customer-dashboard" });
     } catch (err: any) {
       toast.error(err?.message || "Google sign-in failed");
     }
