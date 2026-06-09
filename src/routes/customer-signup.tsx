@@ -104,12 +104,12 @@ function CustomerSignup() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#04060f] text-foreground">
-      {/* Background image */}
+      {/* Premium futuristic 3D supply-chain background */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-60"
+        className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage:
-            "url('https://images.unsplash.com/photo-1545987796-200677ee1011?auto=format&fit=crop&w=2400&q=80')",
+            "url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=2400&q=80')",
         }}
       />
       {/* Color overlays */}
@@ -257,6 +257,17 @@ function CustomerSignup() {
                 By continuing you agree to our terms & data processing addendum.
               </p>
             </form>
+
+            {/* Clearly separated staff/admin access link */}
+            <div className="mt-6 border-t border-white/10 pt-5 text-center">
+              <p className="mb-2 text-[11px] uppercase tracking-[0.2em] text-white/40">Internal team?</p>
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-2 rounded-xl border border-amber-300/30 bg-amber-400/[0.06] px-4 py-2 text-xs font-medium text-amber-200 transition hover:bg-amber-400/[0.12]"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" /> Access Staff / Admin Panel
+              </Link>
+            </div>
           </div>
         </div>
       </div>
