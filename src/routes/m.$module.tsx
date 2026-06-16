@@ -7,11 +7,10 @@ import { getModule, type ModuleColumn, type ModuleField } from "@/lib/modules.co
 import { toast } from "sonner";
 import { Plus, RefreshCw, ArrowLeft } from "lucide-react";
 
+import { requireStaff } from "@/lib/role-guard";
+
 export const Route = createFileRoute("/m/$module")({
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/login" });
-  },
+  beforeLoad: requireStaff,
   component: ModulePage,
 });
 

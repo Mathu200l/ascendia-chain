@@ -8,6 +8,7 @@ import {
   Calendar, MessageSquare, CheckCircle2, Archive, Clock, X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { requireStaff } from "@/lib/role-guard";
 
 
 type ClientProfile = {
@@ -27,10 +28,7 @@ type ClientProfile = {
 
 export const Route = createFileRoute("/clients")({
   head: () => ({ meta: [{ title: "Clients — Ascendia-Chain" }] }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/login" });
-  },
+  beforeLoad: requireStaff,
   component: ClientsPage,
 });
 
