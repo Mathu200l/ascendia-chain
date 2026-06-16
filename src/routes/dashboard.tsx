@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getDashboardData } from "@/lib/dashboard.functions";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { requireStaff } from "@/lib/role-guard";
 import {
   AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell, Legend,
@@ -13,10 +14,7 @@ import {
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Command Center — Ascendia-Chain" }] }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/login" });
-  },
+  beforeLoad: requireStaff,
   component: Dashboard,
 });
 
