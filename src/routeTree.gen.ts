@@ -17,6 +17,7 @@ import { Route as CustomerLoginRouteImport } from './routes/customer-login'
 import { Route as CustomerDashboardRouteImport } from './routes/customer-dashboard'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as BillingRouteImport } from './routes/billing'
+import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MModuleRouteImport } from './routes/m.$module'
 
@@ -60,6 +61,11 @@ const BillingRoute = BillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin-login',
+  path: '/admin-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -73,6 +79,7 @@ const MModuleRoute = MModuleRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin-login': typeof AdminLoginRoute
   '/billing': typeof BillingRoute
   '/clients': typeof ClientsRoute
   '/customer-dashboard': typeof CustomerDashboardRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin-login': typeof AdminLoginRoute
   '/billing': typeof BillingRoute
   '/clients': typeof ClientsRoute
   '/customer-dashboard': typeof CustomerDashboardRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin-login': typeof AdminLoginRoute
   '/billing': typeof BillingRoute
   '/clients': typeof ClientsRoute
   '/customer-dashboard': typeof CustomerDashboardRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin-login'
     | '/billing'
     | '/clients'
     | '/customer-dashboard'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin-login'
     | '/billing'
     | '/clients'
     | '/customer-dashboard'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin-login'
     | '/billing'
     | '/clients'
     | '/customer-dashboard'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   BillingRoute: typeof BillingRoute
   ClientsRoute: typeof ClientsRoute
   CustomerDashboardRoute: typeof CustomerDashboardRoute
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BillingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-login': {
+      id: '/admin-login'
+      path: '/admin-login'
+      fullPath: '/admin-login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -237,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminLoginRoute: AdminLoginRoute,
   BillingRoute: BillingRoute,
   ClientsRoute: ClientsRoute,
   CustomerDashboardRoute: CustomerDashboardRoute,
