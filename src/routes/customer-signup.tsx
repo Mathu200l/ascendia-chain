@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   User, Mail, Building2, Briefcase, Lock, MessageSquare, ArrowRight,
@@ -16,6 +16,9 @@ export const Route = createFileRoute("/customer-signup")({
       { name: "description", content: "Create your customer account and tell us about your logistics & shipping requirements." },
     ],
   }),
+  beforeLoad: () => {
+    throw redirect({ to: "/register" });
+  },
   component: CustomerSignup,
 });
 

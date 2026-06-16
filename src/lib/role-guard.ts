@@ -3,13 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Gate for admin/staff-only routes. Redirects:
- *  - unauthenticated users -> /login
+ *  - unauthenticated users -> /admin-login
  *  - authenticated non-staff users (customers) -> /customer-dashboard
  */
 export async function requireStaff() {
   const { data: userData } = await supabase.auth.getUser();
   const user = userData.user;
-  if (!user) throw redirect({ to: "/login" });
+  if (!user) throw redirect({ to: "/admin-login" });
 
   const { data: roles } = await supabase
     .from("user_roles")

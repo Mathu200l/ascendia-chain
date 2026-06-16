@@ -10,10 +10,11 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/customer-dashboard")({
+  ssr: false,
   head: () => ({ meta: [{ title: "Customer Dashboard — Ascendia-Chain" }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/customer-login" });
+    if (!data.user) throw redirect({ to: "/login" });
   },
   component: CustomerDashboard,
 });
@@ -115,7 +116,7 @@ function CustomerDashboard() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    navigate({ to: "/customer-login" });
+    navigate({ to: "/login" });
   };
 
   return (

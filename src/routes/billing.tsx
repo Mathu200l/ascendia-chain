@@ -10,6 +10,7 @@ import { generateInvoicePdf, type InvoiceData, type InvoiceItem } from "@/lib/in
 import { requireStaff } from "@/lib/role-guard";
 
 export const Route = createFileRoute("/billing")({
+  ssr: false,
   head: () => ({ meta: [{ title: "Billing & GST Invoices — Ascendia-Chain" }] }),
   beforeLoad: requireStaff,
   component: BillingPage,

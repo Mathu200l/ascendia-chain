@@ -570,6 +570,7 @@ export type Database = {
           subtotal: number
           total: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           cgst?: number
@@ -596,6 +597,7 @@ export type Database = {
           subtotal?: number
           total?: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           cgst?: number
@@ -622,6 +624,7 @@ export type Database = {
           subtotal?: number
           total?: number
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1053,6 +1056,7 @@ export type Database = {
           origin: string
           status: string
           tracking_number: string
+          user_id: string | null
           value_usd: number | null
           vendor_id: string | null
         }
@@ -1066,6 +1070,7 @@ export type Database = {
           origin: string
           status?: string
           tracking_number: string
+          user_id?: string | null
           value_usd?: number | null
           vendor_id?: string | null
         }
@@ -1079,6 +1084,7 @@ export type Database = {
           origin?: string
           status?: string
           tracking_number?: string
+          user_id?: string | null
           value_usd?: number | null
           vendor_id?: string | null
         }
@@ -1177,6 +1183,7 @@ export type Database = {
           priority: string
           status: string
           subject: string
+          user_id: string | null
         }
         Insert: {
           assignee?: string | null
@@ -1185,6 +1192,7 @@ export type Database = {
           priority?: string
           status?: string
           subject: string
+          user_id?: string | null
         }
         Update: {
           assignee?: string | null
@@ -1193,6 +1201,7 @@ export type Database = {
           priority?: string
           status?: string
           subject?: string
+          user_id?: string | null
         }
         Relationships: []
       }

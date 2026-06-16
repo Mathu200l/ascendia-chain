@@ -27,6 +27,7 @@ type ClientProfile = {
 };
 
 export const Route = createFileRoute("/clients")({
+  ssr: false,
   head: () => ({ meta: [{ title: "Clients — Ascendia-Chain" }] }),
   beforeLoad: requireStaff,
   component: ClientsPage,

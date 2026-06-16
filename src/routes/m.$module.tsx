@@ -10,6 +10,7 @@ import { Plus, RefreshCw, ArrowLeft } from "lucide-react";
 import { requireStaff } from "@/lib/role-guard";
 
 export const Route = createFileRoute("/m/$module")({
+  ssr: false,
   beforeLoad: requireStaff,
   component: ModulePage,
 });

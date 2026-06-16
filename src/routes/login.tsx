@@ -1,183 +1,129 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Lock, User, Mail, Smartphone, ShieldCheck, ArrowRight, KeyRound } from "lucide-react";
+import { Mail, Lock, ArrowRight, Sparkles, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useServerFn } from "@tanstack/react-start";
-import { ensureDemoAdmin, DEMO_EMAIL, DEMO_PASSWORD } from "@/lib/admin-bootstrap.functions";
+import { lovable } from "@/integrations/lovable/index";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Admin Login — Ascendia-Chain" }] }),
-  component: LoginPage,
+  head: () => ({ meta: [{ title: "Customer Sign in — Ascendia-Chain" }] }),
+  component: CustomerLogin,
 });
 
-const DEMO_USERNAME = "SupplyChainAdmin";
-
-type Step = "credentials" | "mfa" | "otp";
-
-function LoginPage() {
+function CustomerLogin() {
   const navigate = useNavigate();
-  const ensureAdmin = useServerFn(ensureDemoAdmin);
-  const [step, setStep] = useState<Step>("credentials");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [emailOtp, setEmailOtp] = useState("");
-  const [mobileOtp, setMobileOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const submitCreds = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Map the demo username to its real email; otherwise treat input as email.
-      const email = username === DEMO_USERNAME ? DEMO_EMAIL : username;
-
-      // Bootstrap demo admin once, ignore errors silently if not the demo user
-      if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
-        try { await ensureAdmin(); } catch (e) { console.warn(e); }
-      }
-
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw error;
-      toast.success("Credentials verified. Sending verification codes…");
-      setStep("mfa");
+      toast.success("Welcome back.");
+      navigate({ to: "/customer-dashboard" });
     } catch (err: any) {
-      toast.error(err?.message || "Invalid credentials");
+      toast.error(err?.message || "Sign-in failed");
     } finally {
       setLoading(false);
     }
   };
 
-  const sendOtp = () => {
-    toast.success("OTP sent to admin@nexusscm.io and +1 ••• ••• 4421");
-    setStep("otp");
-  };
-
-  const verifyOtp = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (emailOtp.length !== 6 || mobileOtp.length !== 6) {
-      toast.error("Both OTPs must be 6 digits");
-      return;
+  const signInWithGoogle = async () => {
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/customer-dashboard`,
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      navigate({ to: "/customer-dashboard" });
+    } catch (err: any) {
+      toast.error(err?.message || "Google sign-in failed");
     }
-    toast.success("Authenticated. Welcome back.");
-    navigate({ to: "/dashboard" });
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="relative hidden overflow-hidden bg-gradient-surface lg:flex lg:flex-col lg:justify-between lg:p-12">
-        <div className="absolute inset-0 bg-gradient-glow opacity-60" />
-        <Link to="/" className="relative"><Logo /></Link>
-        <div className="relative space-y-6">
-          <h2 className="font-display text-5xl font-bold leading-tight">
-            Secure command center for <span className="text-gradient">global logistics</span>
-          </h2>
-          <p className="max-w-md text-muted-foreground">
-            Multi-factor authentication, JWT sessions, and row-level security protect every entry point.
-          </p>
-          <div className="grid max-w-md gap-3">
-            {[
-              { icon: ShieldCheck, t: "SOC2 Type II + ISO 27001 ready" },
-              { icon: Lock, t: "JWT sessions with auto-refresh" },
-              { icon: KeyRound, t: "Postgres RLS on every table" },
-            ].map((i) => (
-              <div key={i.t} className="glass flex items-center gap-3 rounded-xl px-4 py-3 text-sm">
-                <i.icon className="h-4 w-4 text-primary" /> {i.t}
-              </div>
-            ))}
-          </div>
+    <div className="relative min-h-screen overflow-hidden bg-[#04060f] text-foreground">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=2400&q=80')",
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#04060f]/95 via-[#06091a]/85 to-[#0b1230]/90" />
+      <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-cyan-400/20 blur-[160px]" />
+      <div className="pointer-events-none absolute -bottom-40 right-0 h-[500px] w-[500px] rounded-full bg-violet-500/20 blur-[160px]" />
+
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.7) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+          maskImage: "radial-gradient(ellipse at center, black 40%, transparent 75%)",
+        }}
+      />
+
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-6 py-10">
+        <div className="absolute left-6 top-6 md:left-10 md:top-10">
+          <Link to="/"><Logo /></Link>
         </div>
-        <div className="relative text-xs text-muted-foreground">© Ascendia-Chain — All systems nominal</div>
-      </div>
 
-      <div className="flex items-center justify-center p-6 md:p-12">
-        <div className="w-full max-w-md">
-          <div className="mb-8 flex justify-center lg:hidden"><Logo size="lg" /></div>
-          <div className="mb-8 hidden justify-center lg:flex"><Logo size="lg" /></div>
+        <div
+          className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 shadow-[0_40px_120px_-30px_rgba(40,80,200,0.55)] backdrop-blur-2xl md:p-10"
+          style={{ transform: "perspective(1600px) rotateX(2deg)" }}
+        >
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs text-cyan-300">
+            <Sparkles className="h-3.5 w-3.5" /> Customer portal
+          </div>
+          <h1 className="font-display text-3xl font-bold">Welcome back</h1>
+          <p className="mt-1.5 text-sm text-white/60">
+            New here?{" "}
+            <Link to="/register" className="text-cyan-300 hover:underline">Create an account</Link>
+          </p>
 
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold">
-              {step === "credentials" && "Admin sign in"}
-              {step === "mfa" && "Multi-factor authentication"}
-              {step === "otp" && "Verify your identity"}
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {step === "credentials" && "Enter your enterprise credentials to continue."}
-              {step === "mfa" && "We'll send a one-time code to your registered email and mobile."}
-              {step === "otp" && "Enter the 6-digit codes sent to your email and mobile."}
-            </p>
+          <button
+            type="button"
+            onClick={signInWithGoogle}
+            className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm font-medium text-white transition hover:bg-white/[0.12]"
+          >
+            <GoogleIcon /> Continue with Google
+          </button>
+
+          <div className="my-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.25em] text-white/40">
+            <div className="h-px flex-1 bg-white/10" /> or <div className="h-px flex-1 bg-white/10" />
           </div>
 
-          <div className="mb-8 flex items-center gap-2">
-            {(["credentials", "mfa", "otp"] as Step[]).map((s, i) => (
-              <div key={s} className={`h-1.5 flex-1 rounded-full ${["credentials", "mfa", "otp"].indexOf(step) >= i ? "bg-gradient-primary" : "bg-muted"}`} />
-            ))}
+          <form onSubmit={submit} className="space-y-3.5">
+            <Field icon={Mail} label="Email">
+              <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30" />
+            </Field>
+            <Field icon={Lock} label="Password">
+              <input required type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30" />
+            </Field>
+            <button
+              disabled={loading}
+              className="group relative mt-2 inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-cyan-400 via-sky-500 to-violet-500 px-4 py-3.5 font-semibold text-white shadow-[0_10px_40px_-10px_rgba(80,120,255,0.7)] transition hover:opacity-95 disabled:opacity-60"
+            >
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+              {loading ? "Signing in…" : <>Sign in <ArrowRight className="h-4 w-4" /></>}
+            </button>
+          </form>
+
+          {/* Clearly separated staff/admin access link */}
+          <div className="mt-6 border-t border-white/10 pt-5 text-center">
+            <p className="mb-2 text-[11px] uppercase tracking-[0.2em] text-white/40">Internal team?</p>
+            <Link
+              to="/admin-login"
+              className="inline-flex items-center gap-2 rounded-xl border border-amber-300/30 bg-amber-400/[0.06] px-4 py-2 text-xs font-medium text-amber-200 transition hover:bg-amber-400/[0.12]"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" /> Access Staff / Admin Panel
+            </Link>
           </div>
-
-          {step === "credentials" && (
-            <form onSubmit={submitCreds} className="space-y-4">
-              <Field icon={User} label="Username">
-                <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="SupplyChainAdmin" className="w-full bg-transparent text-foreground outline-none placeholder:text-muted-foreground/60" required />
-              </Field>
-              <Field icon={Lock} label="Password">
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••••••" className="w-full bg-transparent text-foreground outline-none placeholder:text-muted-foreground/60" required />
-              </Field>
-              <button disabled={loading} className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-3 font-semibold text-primary-foreground shadow-glow transition hover:opacity-90 disabled:opacity-60">
-                {loading ? "Verifying…" : <>Continue <ArrowRight className="h-4 w-4" /></>}
-              </button>
-              <p className="rounded-lg border border-border bg-surface/50 p-3 text-xs text-muted-foreground">
-                <span className="font-mono text-foreground">Demo:</span> SupplyChainAdmin / SupplyChainPassword
-              </p>
-              <p className="pt-1 text-center text-xs text-muted-foreground">
-                New to Ascendia-Chain?{" "}
-                <Link to="/register" className="font-medium text-primary hover:underline">
-                  Create your company account
-                </Link>
-              </p>
-            </form>
-          )}
-
-          {step === "mfa" && (
-            <div className="space-y-4">
-              <div className="glass flex items-center gap-3 rounded-xl p-4">
-                <Mail className="h-5 w-5 text-primary" />
-                <div className="flex-1">
-                  <div className="text-sm font-medium">Email verification</div>
-                  <div className="text-xs text-muted-foreground">admin@nexusscm.io</div>
-                </div>
-                <span className="text-xs text-success">Enabled</span>
-              </div>
-              <div className="glass flex items-center gap-3 rounded-xl p-4">
-                <Smartphone className="h-5 w-5 text-accent" />
-                <div className="flex-1">
-                  <div className="text-sm font-medium">Mobile SMS</div>
-                  <div className="text-xs text-muted-foreground">+1 ••• ••• 4421</div>
-                </div>
-                <span className="text-xs text-success">Enabled</span>
-              </div>
-              <button onClick={sendOtp} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-3 font-semibold text-primary-foreground shadow-glow transition hover:opacity-90">
-                Send OTP codes <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-          )}
-
-          {step === "otp" && (
-            <form onSubmit={verifyOtp} className="space-y-4">
-              <Field icon={Mail} label="Email OTP">
-                <input value={emailOtp} onChange={(e) => setEmailOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="123456" inputMode="numeric" className="w-full bg-transparent font-mono text-lg tracking-[0.5em] text-foreground outline-none placeholder:text-muted-foreground/40" required />
-              </Field>
-              <Field icon={Smartphone} label="Mobile OTP">
-                <input value={mobileOtp} onChange={(e) => setMobileOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="654321" inputMode="numeric" className="w-full bg-transparent font-mono text-lg tracking-[0.5em] text-foreground outline-none placeholder:text-muted-foreground/40" required />
-              </Field>
-              <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-3 font-semibold text-primary-foreground shadow-glow transition hover:opacity-90">
-                Verify & sign in <ArrowRight className="h-4 w-4" />
-              </button>
-              <button type="button" onClick={() => setStep("mfa")} className="w-full text-center text-xs text-muted-foreground hover:text-foreground">
-                ← Resend codes
-              </button>
-            </form>
-          )}
         </div>
       </div>
     </div>
@@ -187,11 +133,23 @@ function LoginPage() {
 function Field({ icon: Icon, label, children }: { icon: any; label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
-      <div className="flex items-center gap-3 rounded-xl border border-border bg-surface/60 px-4 py-3 transition focus-within:border-primary focus-within:shadow-glow">
-        <Icon className="h-4 w-4 text-muted-foreground" />
+      <span className="mb-1 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-white/50">
+        <Icon className="h-3 w-3" /> {label}
+      </span>
+      <div className="rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 transition focus-within:border-cyan-300/60 focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_3px_rgba(34,211,238,0.15)]">
         {children}
       </div>
     </label>
+  );
+}
+
+function GoogleIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 48 48">
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35.5 24 35.5c-6.4 0-11.5-5.1-11.5-11.5S17.6 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.7 6.4 29.1 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5c10.8 0 19.5-8.7 19.5-19.5 0-1.2-.1-2.3-.4-3.5z"/>
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.7 6.9 29.1 5 24 5 16.3 5 9.7 9.4 6.3 14.7z"/>
+      <path fill="#4CAF50" d="M24 43c5 0 9.5-1.9 12.9-5l-6-4.9C29 34.8 26.6 35.5 24 35.5c-5.3 0-9.6-3.1-11.2-7.5l-6.5 5C9.6 38.6 16.3 43 24 43z"/>
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.3 4.1-4.3 5.4l6 4.9c-.4.4 6.5-4.7 6.5-14.3 0-1.2-.1-2.3-.4-3.5z"/>
+    </svg>
   );
 }

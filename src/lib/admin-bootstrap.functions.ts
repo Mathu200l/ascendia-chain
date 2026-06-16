@@ -2,12 +2,13 @@
 // Uses the service role internally; safe because the only side effect is
 // idempotently creating one well-known account with a known password.
 import { createServerFn } from "@tanstack/react-start";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export const DEMO_EMAIL = "supplychainadmin@nexusscm.app";
 export const DEMO_PASSWORD = "SupplyChainPassword";
 
 export const ensureDemoAdmin = createServerFn({ method: "POST" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
   // Look up existing user by email
   const { data: list, error: listErr } = await supabaseAdmin.auth.admin.listUsers({
     page: 1,
