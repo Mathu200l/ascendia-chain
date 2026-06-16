@@ -13,6 +13,7 @@ import {
 } from "recharts";
 
 export const Route = createFileRoute("/dashboard")({
+  ssr: false,
   head: () => ({ meta: [{ title: "Command Center — Ascendia-Chain" }] }),
   beforeLoad: requireStaff,
   component: Dashboard,

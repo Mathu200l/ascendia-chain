@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Mail, Lock, ArrowRight, Sparkles, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,9 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/customer-login")({
   head: () => ({ meta: [{ title: "Customer Sign in — Ascendia-Chain" }] }),
+  beforeLoad: () => {
+    throw redirect({ to: "/login" });
+  },
   component: CustomerLogin,
 });
 
