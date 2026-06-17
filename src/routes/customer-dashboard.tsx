@@ -321,7 +321,148 @@ function CustomerDashboard() {
             </div>
           )}
 
+          {tab === "services" && (
+            <div>
+              <div className="mb-4 flex items-start justify-between gap-3 rounded-xl border border-cyan-300/20 bg-cyan-300/5 p-4 text-xs text-cyan-100/90">
+                <div className="flex items-start gap-2">
+                  <Lock className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
+                  <span>
+                    Every service in our platform is available to your account. Data shown anywhere on this dashboard is filtered to <strong>your user ID only</strong> — admin-wide and other customers' data is never exposed.
+                  </span>
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {MODULES.map((m) => {
+                  const Icon = (Icons as any)[m.icon] ?? Layers;
+                  return (
+                    <div key={m.slug} className="group rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-cyan-300/40">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400/80 to-violet-500/80">
+                          <Icon className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-[10px] uppercase tracking-wider text-cyan-300">{m.group}</div>
+                          <div className="truncate font-semibold">{m.label}</div>
+                          <p className="mt-1 line-clamp-2 text-xs text-white/60">{m.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {tab === "shipments" && (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="font-display text-lg font-semibold">Your shipments</h3>
+                <span className="text-xs text-white/50">{shipments?.length ?? 0} total · only yours</span>
+              </div>
+              {(!shipments || shipments.length === 0) ? (
+                <div className="py-12 text-center text-white/50">
+                  <Truck className="mx-auto h-10 w-10 text-white/20" />
+                  <p className="mt-3 text-sm">No shipments linked to your account yet.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-white/10">
+                  <table className="w-full text-sm">
+                    <thead className="bg-white/[0.03] text-left text-xs uppercase tracking-wider text-white/50">
+                      <tr>
+                        <th className="px-4 py-3">Tracking</th>
+                        <th className="px-4 py-3">Origin → Destination</th>
+                        <th className="px-4 py-3">Mode</th>
+                        <th className="px-4 py-3">Status</th>
+                        <th className="px-4 py-3">ETA</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {shipments.map((s: any) => (
+                        <tr key={s.id} className="hover:bg-white/[0.03]">
+                          <td className="px-4 py-3 font-mono text-xs">{s.tracking_number ?? s.id?.slice(0, 8)}</td>
+                          <td className="px-4 py-3 text-white/80">{s.origin} → {s.destination}</td>
+                          <td className="px-4 py-3 capitalize text-white/70">{s.mode ?? "—"}</td>
+                          <td className="px-4 py-3"><span className="inline-flex rounded-full bg-cyan-400/10 px-2 py-0.5 text-xs capitalize text-cyan-300">{(s.status ?? "pending").replace(/_/g, " ")}</span></td>
+                          <td className="px-4 py-3 text-white/60">{s.eta ? new Date(s.eta).toLocaleDateString() : "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === "notifications" && (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="font-display text-lg font-semibold">Your alerts</h3>
+                <span className="text-xs text-white/50">{notifications?.length ?? 0} total · only yours</span>
+              </div>
+              {(!notifications || notifications.length === 0) ? (
+                <div className="py-12 text-center text-white/50">
+                  <Bell className="mx-auto h-10 w-10 text-white/20" />
+                  <p className="mt-3 text-sm">You're all caught up. New alerts will appear here.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {notifications.map((n: any) => (
+                    <div key={n.id} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                      <Bell className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="font-medium">{n.title}</div>
+                          <span className="text-[10px] uppercase tracking-wider text-white/40">{new Date(n.created_at).toLocaleString()}</span>
+                        </div>
+                        {n.body && <p className="mt-1 text-sm text-white/70">{n.body}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === "support" && (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="font-display text-lg font-semibold">Your support tickets</h3>
+                <span className="text-xs text-white/50">{tickets?.length ?? 0} total · only yours</span>
+              </div>
+              {(!tickets || tickets.length === 0) ? (
+                <div className="py-12 text-center text-white/50">
+                  <LifeBuoy className="mx-auto h-10 w-10 text-white/20" />
+                  <p className="mt-3 text-sm">No tickets yet. Reach out to support and your tickets will show here.</p>
+                </div>
+              ) : (
+                <div className="overflow-hidden rounded-xl border border-white/10">
+                  <table className="w-full text-sm">
+                    <thead className="bg-white/[0.03] text-left text-xs uppercase tracking-wider text-white/50">
+                      <tr>
+                        <th className="px-4 py-3">Subject</th>
+                        <th className="px-4 py-3">Priority</th>
+                        <th className="px-4 py-3">Status</th>
+                        <th className="px-4 py-3">Opened</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {tickets.map((t: any) => (
+                        <tr key={t.id} className="hover:bg-white/[0.03]">
+                          <td className="px-4 py-3">{t.subject}</td>
+                          <td className="px-4 py-3 capitalize text-white/70">{t.priority ?? "normal"}</td>
+                          <td className="px-4 py-3"><span className="inline-flex rounded-full bg-emerald-400/10 px-2 py-0.5 text-xs capitalize text-emerald-300">{t.status ?? "open"}</span></td>
+                          <td className="px-4 py-3 text-white/60">{new Date(t.created_at).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
           {tab === "billing" && (
+
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-display text-lg font-semibold">Your invoices</h3>
