@@ -214,9 +214,11 @@ function CustomerDashboard() {
             This dashboard shows <strong className="text-white">only your account</strong> — your cart, your billing, your shipments. No other company's data is visible here.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <Stat icon={ShoppingCart} label="Cart items" value={cart.reduce((s, i) => s + i.qty, 0).toString()} accent="from-cyan-400 to-sky-500" />
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <Stat icon={Truck} label="Your shipments" value={(shipments?.length ?? 0).toString()} accent="from-cyan-400 to-sky-500" />
             <Stat icon={Receipt} label="Your invoices" value={(invoices?.length ?? 0).toString()} accent="from-violet-400 to-fuchsia-500" />
+            <Stat icon={Bell} label="Notifications" value={(notifications?.length ?? 0).toString()} accent="from-amber-300 to-orange-500" />
+            <Stat icon={LifeBuoy} label="Support tickets" value={(tickets?.length ?? 0).toString()} accent="from-rose-400 to-pink-500" />
             <Stat icon={CreditCard} label="Cart total" value={`$${cartTotal.toLocaleString()}`} accent="from-emerald-300 to-teal-500" />
           </div>
         </div>
@@ -224,13 +226,17 @@ function CustomerDashboard() {
         <div className="mt-8 flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-1.5 backdrop-blur">
           {[
             { id: "overview", label: "Plans", icon: Package },
+            { id: "services", label: `Services (${MODULES.length})`, icon: Layers },
+            { id: "shipments", label: `Shipments (${shipments?.length ?? 0})`, icon: Truck },
+            { id: "notifications", label: `Alerts (${notifications?.length ?? 0})`, icon: Bell },
+            { id: "support", label: `Support (${tickets?.length ?? 0})`, icon: LifeBuoy },
             { id: "cart", label: `Cart (${cart.length})`, icon: ShoppingCart },
             { id: "billing", label: "Billing", icon: Receipt },
           ].map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id as any)}
-              className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+              className={`inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition md:text-sm ${
                 tab === t.id
                   ? "bg-gradient-to-r from-cyan-400/90 via-sky-500/90 to-violet-500/90 text-white shadow-[0_8px_30px_-8px_rgba(80,120,255,0.7)]"
                   : "text-white/60 hover:bg-white/[0.05] hover:text-white"
@@ -240,6 +246,7 @@ function CustomerDashboard() {
             </button>
           ))}
         </div>
+
 
         <div className="mt-6">
           {tab === "overview" && (
