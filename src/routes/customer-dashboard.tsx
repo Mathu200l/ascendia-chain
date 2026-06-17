@@ -4,10 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
+import * as Icons from "lucide-react";
+import { MODULES } from "@/lib/modules.config";
 import {
   ShoppingCart, Receipt, Plus, Minus, Trash2, LogOut, Sparkles,
-  Package, CreditCard, CheckCircle2, Truck,
+  Package, CreditCard, CheckCircle2, Truck, Bell, LifeBuoy, Layers, Lock,
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/customer-dashboard")({
   ssr: false,
@@ -40,7 +43,7 @@ function saveCart(userId: string, c: CartItem[]) {
 
 function CustomerDashboard() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"overview" | "cart" | "billing">("overview");
+  const [tab, setTab] = useState<"overview" | "services" | "shipments" | "notifications" | "support" | "cart" | "billing">("overview");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [userId, setUserId] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -59,7 +62,7 @@ function CustomerDashboard() {
 
   useEffect(() => { if (userId) saveCart(userId, cart); }, [cart, userId]);
 
-  // STRICT data isolation: only fetch this user's client profile + their invoices
+  // STRICT data isolation: every query filters by the current user's id.
   const { data: profile } = useQuery({
     queryKey: ["my-client-profile", userId],
     enabled: !!userId,
@@ -74,19 +77,65 @@ function CustomerDashboard() {
   });
 
   const { data: invoices } = useQuery({
-    queryKey: ["my-invoices", profile?.id],
-    enabled: !!profile?.id,
+    queryKey: ["my-invoices", userId],
+    enabled: !!userId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("invoices")
         .select("*")
-        .eq("client_id", profile!.id)
+        .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) return [];
       return data ?? [];
     },
   });
+
+  const { data: shipments } = useQuery({
+    queryKey: ["my-shipments", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("shipments")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) return [];
+      return data ?? [];
+    },
+  });
+
+  const { data: notifications } = useQuery({
+    queryKey: ["my-notifications", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) return [];
+      return data ?? [];
+    },
+  });
+
+  const { data: tickets } = useQuery({
+    queryKey: ["my-tickets", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("support_tickets")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) return [];
+      return data ?? [];
+    },
+  });
+
 
   const cartTotal = useMemo(() => cart.reduce((s, i) => s + i.price * i.qty, 0), [cart]);
 
@@ -165,9 +214,11 @@ function CustomerDashboard() {
             This dashboard shows <strong className="text-white">only your account</strong> — your cart, your billing, your shipments. No other company's data is visible here.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <Stat icon={ShoppingCart} label="Cart items" value={cart.reduce((s, i) => s + i.qty, 0).toString()} accent="from-cyan-400 to-sky-500" />
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <Stat icon={Truck} label="Your shipments" value={(shipments?.length ?? 0).toString()} accent="from-cyan-400 to-sky-500" />
             <Stat icon={Receipt} label="Your invoices" value={(invoices?.length ?? 0).toString()} accent="from-violet-400 to-fuchsia-500" />
+            <Stat icon={Bell} label="Notifications" value={(notifications?.length ?? 0).toString()} accent="from-amber-300 to-orange-500" />
+            <Stat icon={LifeBuoy} label="Support tickets" value={(tickets?.length ?? 0).toString()} accent="from-rose-400 to-pink-500" />
             <Stat icon={CreditCard} label="Cart total" value={`$${cartTotal.toLocaleString()}`} accent="from-emerald-300 to-teal-500" />
           </div>
         </div>
@@ -175,13 +226,17 @@ function CustomerDashboard() {
         <div className="mt-8 flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-1.5 backdrop-blur">
           {[
             { id: "overview", label: "Plans", icon: Package },
+            { id: "services", label: `Services (${MODULES.length})`, icon: Layers },
+            { id: "shipments", label: `Shipments (${shipments?.length ?? 0})`, icon: Truck },
+            { id: "notifications", label: `Alerts (${notifications?.length ?? 0})`, icon: Bell },
+            { id: "support", label: `Support (${tickets?.length ?? 0})`, icon: LifeBuoy },
             { id: "cart", label: `Cart (${cart.length})`, icon: ShoppingCart },
             { id: "billing", label: "Billing", icon: Receipt },
           ].map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id as any)}
-              className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+              className={`inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition md:text-sm ${
                 tab === t.id
                   ? "bg-gradient-to-r from-cyan-400/90 via-sky-500/90 to-violet-500/90 text-white shadow-[0_8px_30px_-8px_rgba(80,120,255,0.7)]"
                   : "text-white/60 hover:bg-white/[0.05] hover:text-white"
@@ -191,6 +246,7 @@ function CustomerDashboard() {
             </button>
           ))}
         </div>
+
 
         <div className="mt-6">
           {tab === "overview" && (
@@ -265,7 +321,148 @@ function CustomerDashboard() {
             </div>
           )}
 
+          {tab === "services" && (
+            <div>
+              <div className="mb-4 flex items-start justify-between gap-3 rounded-xl border border-cyan-300/20 bg-cyan-300/5 p-4 text-xs text-cyan-100/90">
+                <div className="flex items-start gap-2">
+                  <Lock className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
+                  <span>
+                    Every service in our platform is available to your account. Data shown anywhere on this dashboard is filtered to <strong>your user ID only</strong> — admin-wide and other customers' data is never exposed.
+                  </span>
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {MODULES.map((m) => {
+                  const Icon = (Icons as any)[m.icon] ?? Layers;
+                  return (
+                    <div key={m.slug} className="group rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-cyan-300/40">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400/80 to-violet-500/80">
+                          <Icon className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-[10px] uppercase tracking-wider text-cyan-300">{m.group}</div>
+                          <div className="truncate font-semibold">{m.label}</div>
+                          <p className="mt-1 line-clamp-2 text-xs text-white/60">{m.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {tab === "shipments" && (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="font-display text-lg font-semibold">Your shipments</h3>
+                <span className="text-xs text-white/50">{shipments?.length ?? 0} total · only yours</span>
+              </div>
+              {(!shipments || shipments.length === 0) ? (
+                <div className="py-12 text-center text-white/50">
+                  <Truck className="mx-auto h-10 w-10 text-white/20" />
+                  <p className="mt-3 text-sm">No shipments linked to your account yet.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-white/10">
+                  <table className="w-full text-sm">
+                    <thead className="bg-white/[0.03] text-left text-xs uppercase tracking-wider text-white/50">
+                      <tr>
+                        <th className="px-4 py-3">Tracking</th>
+                        <th className="px-4 py-3">Origin → Destination</th>
+                        <th className="px-4 py-3">Mode</th>
+                        <th className="px-4 py-3">Status</th>
+                        <th className="px-4 py-3">ETA</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {shipments.map((s: any) => (
+                        <tr key={s.id} className="hover:bg-white/[0.03]">
+                          <td className="px-4 py-3 font-mono text-xs">{s.tracking_number ?? s.id?.slice(0, 8)}</td>
+                          <td className="px-4 py-3 text-white/80">{s.origin} → {s.destination}</td>
+                          <td className="px-4 py-3 capitalize text-white/70">{s.mode ?? "—"}</td>
+                          <td className="px-4 py-3"><span className="inline-flex rounded-full bg-cyan-400/10 px-2 py-0.5 text-xs capitalize text-cyan-300">{(s.status ?? "pending").replace(/_/g, " ")}</span></td>
+                          <td className="px-4 py-3 text-white/60">{s.eta ? new Date(s.eta).toLocaleDateString() : "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === "notifications" && (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="font-display text-lg font-semibold">Your alerts</h3>
+                <span className="text-xs text-white/50">{notifications?.length ?? 0} total · only yours</span>
+              </div>
+              {(!notifications || notifications.length === 0) ? (
+                <div className="py-12 text-center text-white/50">
+                  <Bell className="mx-auto h-10 w-10 text-white/20" />
+                  <p className="mt-3 text-sm">You're all caught up. New alerts will appear here.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {notifications.map((n: any) => (
+                    <div key={n.id} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                      <Bell className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="font-medium">{n.title}</div>
+                          <span className="text-[10px] uppercase tracking-wider text-white/40">{new Date(n.created_at).toLocaleString()}</span>
+                        </div>
+                        {n.body && <p className="mt-1 text-sm text-white/70">{n.body}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === "support" && (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="font-display text-lg font-semibold">Your support tickets</h3>
+                <span className="text-xs text-white/50">{tickets?.length ?? 0} total · only yours</span>
+              </div>
+              {(!tickets || tickets.length === 0) ? (
+                <div className="py-12 text-center text-white/50">
+                  <LifeBuoy className="mx-auto h-10 w-10 text-white/20" />
+                  <p className="mt-3 text-sm">No tickets yet. Reach out to support and your tickets will show here.</p>
+                </div>
+              ) : (
+                <div className="overflow-hidden rounded-xl border border-white/10">
+                  <table className="w-full text-sm">
+                    <thead className="bg-white/[0.03] text-left text-xs uppercase tracking-wider text-white/50">
+                      <tr>
+                        <th className="px-4 py-3">Subject</th>
+                        <th className="px-4 py-3">Priority</th>
+                        <th className="px-4 py-3">Status</th>
+                        <th className="px-4 py-3">Opened</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {tickets.map((t: any) => (
+                        <tr key={t.id} className="hover:bg-white/[0.03]">
+                          <td className="px-4 py-3">{t.subject}</td>
+                          <td className="px-4 py-3 capitalize text-white/70">{t.priority ?? "normal"}</td>
+                          <td className="px-4 py-3"><span className="inline-flex rounded-full bg-emerald-400/10 px-2 py-0.5 text-xs capitalize text-emerald-300">{t.status ?? "open"}</span></td>
+                          <td className="px-4 py-3 text-white/60">{new Date(t.created_at).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
           {tab === "billing" && (
+
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-display text-lg font-semibold">Your invoices</h3>
