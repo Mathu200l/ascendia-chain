@@ -4,10 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
+import * as Icons from "lucide-react";
+import { MODULES } from "@/lib/modules.config";
 import {
   ShoppingCart, Receipt, Plus, Minus, Trash2, LogOut, Sparkles,
-  Package, CreditCard, CheckCircle2, Truck,
+  Package, CreditCard, CheckCircle2, Truck, Bell, LifeBuoy, Layers, Lock,
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/customer-dashboard")({
   ssr: false,
@@ -40,7 +43,7 @@ function saveCart(userId: string, c: CartItem[]) {
 
 function CustomerDashboard() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"overview" | "cart" | "billing">("overview");
+  const [tab, setTab] = useState<"overview" | "services" | "shipments" | "notifications" | "support" | "cart" | "billing">("overview");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [userId, setUserId] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -59,7 +62,7 @@ function CustomerDashboard() {
 
   useEffect(() => { if (userId) saveCart(userId, cart); }, [cart, userId]);
 
-  // STRICT data isolation: only fetch this user's client profile + their invoices
+  // STRICT data isolation: every query filters by the current user's id.
   const { data: profile } = useQuery({
     queryKey: ["my-client-profile", userId],
     enabled: !!userId,
@@ -74,19 +77,65 @@ function CustomerDashboard() {
   });
 
   const { data: invoices } = useQuery({
-    queryKey: ["my-invoices", profile?.id],
-    enabled: !!profile?.id,
+    queryKey: ["my-invoices", userId],
+    enabled: !!userId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("invoices")
         .select("*")
-        .eq("client_id", profile!.id)
+        .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) return [];
       return data ?? [];
     },
   });
+
+  const { data: shipments } = useQuery({
+    queryKey: ["my-shipments", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("shipments")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) return [];
+      return data ?? [];
+    },
+  });
+
+  const { data: notifications } = useQuery({
+    queryKey: ["my-notifications", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) return [];
+      return data ?? [];
+    },
+  });
+
+  const { data: tickets } = useQuery({
+    queryKey: ["my-tickets", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("support_tickets")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) return [];
+      return data ?? [];
+    },
+  });
+
 
   const cartTotal = useMemo(() => cart.reduce((s, i) => s + i.price * i.qty, 0), [cart]);
 
